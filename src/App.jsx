@@ -13,6 +13,10 @@ import AddCS from "./pages/AddCS";
 import EditAkunDiCabang from "./pages/EditAkunDiCabang";
 import AddCabang from "./pages/AddCabang";
 import EditCabang from "./pages/EditCabang";
+import AddLibur from "./pages/AddLibur";
+import EditLibur from "./pages/EditLibur";
+import AddLayanan from "./pages/AddLayanan";
+import EditLayanan from "./pages/EditLayanan";
 
 function App() {
   return (
@@ -20,9 +24,6 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/nasabah" element={<Nasabah />} />
-        <Route path="/libur" element={<Libur />} />
-        <Route path="/layanan" element={<Layanan />} />
         <Route path="/antrian" element={<Antrian />} />
         <Route path="/profil" element={<Profil />} />
 
@@ -36,6 +37,18 @@ function App() {
           path="/cabang/detail-cabang/edit-cs-loket"
           element={<EditAkunDiCabang />}
         />
+        {/* libur */}
+        <Route path="/libur" element={<Libur />} />
+        <Route path="/libur/add-libur" element={<AddLibur />} />
+        <Route path="/libur/edit-libur" element={<EditLibur />} />
+
+        {/* nasabah */}
+        <Route path="/nasabah" element={<Nasabah />} />
+
+        {/* layanan */}
+        <Route path="/layanan" element={<Layanan />} />
+        <Route path="/layanan/add-layanan" element={<AddLayanan />} />
+        <Route path="/layanan/edit-layanan" element={<EditLayanan />} />
       </Routes>
     </Router>
   );

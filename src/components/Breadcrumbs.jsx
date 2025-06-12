@@ -17,7 +17,7 @@ const Breadcrumbs = () => {
           const isLast = index === pathnames.length - 1;
           const label = name
             .replace(/-/g, " ")
-            .replace(/\b\w/g, (char) => char.toUpperCase());
+            .replace(/\b\w/g, (char) => char.toLowerCase());
 
           return (
             <li key={name} className="text-[#FF800A]">
