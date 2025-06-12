@@ -15,6 +15,56 @@ const EditLayanan = () => {
               className="input w-full"
               placeholder="Nama Layanan"
             />
+            <div className="mb-4">
+              <label className="label mb-2">Dokumen Terkait</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    defaultChecked
+                    className="checkbox checkbox-warning"
+                  />
+                  <span>KTP</span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    defaultChecked
+                    className="checkbox checkbox-warning"
+                  />
+                  <span>KK</span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    className="checkbox checkbox-warning"
+                  />
+                  <span>NPWP</span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    className="checkbox checkbox-warning"
+                  />
+                  <span>BA Polisi</span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    className="checkbox checkbox-warning"
+                  />
+                  <span>BA</span>
+                </label>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    className="checkbox checkbox-warning"
+                  />
+                  <span>SIM</span>
+                </label>
+              </div>
+            </div>
+
             <div className="flex justify-center gap-5">
               <button className="btn bg-white border-orange-500 mt-4 text-orange-300 font-semibold">
                 Batalkan

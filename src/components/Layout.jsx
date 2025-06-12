@@ -10,6 +10,7 @@ import {
   UserRoundCog,
   House,
   LogOut,
+  FileText,
 } from "lucide-react";
 import SidebarItem from "./SidebarItem";
 import Breadcrumbs from "./Breadcrumbs";
@@ -45,6 +46,11 @@ const Layout = ({ children }) => {
           icon={<BookUser size={20} />}
           text="Antrian"
           to="/antrian"
+        />
+        <SidebarItem
+          icon={<FileText size={20} />}
+          text="Dokumen"
+          to="/dokumen"
         />
         <SidebarItem
           icon={<UserRoundCog size={20} />}

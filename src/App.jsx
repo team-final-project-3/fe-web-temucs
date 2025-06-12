@@ -17,6 +17,10 @@ import AddLibur from "./pages/AddLibur";
 import EditLibur from "./pages/EditLibur";
 import AddLayanan from "./pages/AddLayanan";
 import EditLayanan from "./pages/EditLayanan";
+import DetailLayanan from "./pages/DetailLayanan";
+import Dokumen from "./pages/Dokumen";
+import AddDokumen from "./pages/AddDokumen";
+import EditDokumen from "./pages/EditDokumen";
 
 function App() {
   return (
@@ -24,7 +28,6 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/antrian" element={<Antrian />} />
         <Route path="/profil" element={<Profil />} />
 
         {/* cabang */}
@@ -47,8 +50,17 @@ function App() {
 
         {/* layanan */}
         <Route path="/layanan" element={<Layanan />} />
+        <Route path="/layanan/detail-layanan" element={<DetailLayanan />} />
         <Route path="/layanan/add-layanan" element={<AddLayanan />} />
         <Route path="/layanan/edit-layanan" element={<EditLayanan />} />
+
+        {/* antrian */}
+        <Route path="/antrian" element={<Antrian />} />
+
+        {/* dokumen */}
+        <Route path="/dokumen" element={<Dokumen />} />
+        <Route path="/dokumen/add-dokumen" element={<AddDokumen />} />
+        <Route path="/dokumen/edit-dokumen" element={<EditDokumen />} />
       </Routes>
     </Router>
   );

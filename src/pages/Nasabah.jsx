@@ -47,9 +47,10 @@ const Nasabah = () => {
   return (
     <Layout>
       <div className="min-h-screen">
+        <h2 className="text-2xl font-semibold my-3">LIHAT NASABAH</h2>
+
         <div className="p-4 bg-white rounded-lg shadow">
           <div className="flex justify-between">
-            {/* Tabs */}
             <div role="tablist" className="tabs tabs-lift mb-4">
               <button
                 role="tab"
@@ -84,8 +85,6 @@ const Nasabah = () => {
                 OFFLINE
               </button>
             </div>
-
-            {/* Search */}
             <input
               type="text"
               placeholder="Search Nasabah"
@@ -94,7 +93,6 @@ const Nasabah = () => {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          {/* Table */}
           <div className="overflow-x-auto">
             <table className="table w-full">
               <thead>
