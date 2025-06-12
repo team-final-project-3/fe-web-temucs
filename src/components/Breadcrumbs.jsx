@@ -6,7 +6,7 @@ const Breadcrumbs = () => {
   const pathnames = location.pathname.split("/").filter((x) => x);
 
   return (
-    <div className="breadcrumbs text-sm mt-2 mb-4">
+    <div className="breadcrumbs text-sm mt-2 mb-2">
       <ul className="text-xl">
         <li>
           <Link to="/dashboard">TemuCS</Link>
@@ -24,7 +24,7 @@ const Breadcrumbs = () => {
               {isLast ? (
                 <span>{label}</span>
               ) : (
-                <Link to={routeTo}>{label}s</Link>
+                <Link to={routeTo}>{label}</Link>
               )}
             </li>
           );

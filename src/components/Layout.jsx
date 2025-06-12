@@ -61,7 +61,7 @@ const Layout = ({ children }) => {
             <Breadcrumbs />
             <DayDate />
           </div>
-          <main className="flex-1 overflow-auto mb-10 px-6">{children}</main>
+          <main className="flex-1 overflow-auto mb-1 px-6">{children}</main>
           <Footer />
         </div>
       </div>

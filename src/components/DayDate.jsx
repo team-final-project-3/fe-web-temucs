@@ -28,7 +28,7 @@ const DayDate = () => {
 
   return (
     <div>
-      <h2>
+      <h2 style={{ color: "#3D474B" }}>
         <strong>{dayName}</strong>, {fullDate}
       </h2>
     </div>
