@@ -21,6 +21,9 @@ import DetailLayanan from "./pages/DetailLayanan";
 import Dokumen from "./pages/Dokumen";
 import AddDokumen from "./pages/AddDokumen";
 import EditDokumen from "./pages/EditDokumen";
+import CsDashboard from "./pages/csDashboard";
+import CsLayanan from "./pages/csLayanan";
+import CsDetailLayanan from "./pages/csDetailLayanan";
 
 function App() {
   return (
@@ -29,6 +32,11 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profil" element={<Profil />} />
+
+        {/* Web CS */}
+        <Route path="/cs-dashboard" element={<CsDashboard />} />
+        <Route path="/cs-layanan" element={<CsLayanan />} />
+        <Route path="/cs-detail-layanan" element={<CsDetailLayanan />} />
 
         {/* cabang */}
         <Route path="/cabang" element={<Cabang />} />
