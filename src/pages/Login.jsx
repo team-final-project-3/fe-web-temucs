@@ -14,7 +14,6 @@ const Login = () => {
 
     try {
       const response = await api.post("/users/login", { username, password });
-      // const {token, role} = response.data
       console.log(response.data);
 
       if (response.status == 200) {
