@@ -52,12 +52,6 @@ const Layout = ({ children }) => {
           text="Dokumen"
           to="/dokumen"
         />
-        <SidebarItem
-          icon={<UserRoundCog size={20} />}
-          text="Profil"
-          to="/profil"
-        />
-        <SidebarItem icon={<LogOut size={20} />} text="Keluar" to="/logout" />
       </Sidebar>
 
       <div className="flex flex-col flex-1">

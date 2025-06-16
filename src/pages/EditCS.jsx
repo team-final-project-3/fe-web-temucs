@@ -3,7 +3,7 @@ import Layout from "../components/Layout";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
 import api from "../utils/api";
 
-const AddCS = () => {
+const EditCS = () => {
   const { id } = useParams();
   const numericId = parseInt(id, 10);
   console.log(id);
@@ -14,7 +14,7 @@ const AddCS = () => {
 
   const navigate = useNavigate();
 
-  const handleAddCS = async () => {
+  const handleEditCS = async () => {
     const response = await api.post("/cs/add", {
       branchId: numericId,
       name,
@@ -67,7 +67,7 @@ const AddCS = () => {
                 Batalkan
               </NavLink>
               <button
-                onClick={handleAddCS}
+                onClick={handleEditCS}
                 className="btn bg-orange-500 mt-4 text-white font-semibold"
               >
                 Tambah
@@ -80,4 +80,4 @@ const AddCS = () => {
   );
 };
 
-export default AddCS;
+export default EditCS;

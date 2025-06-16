@@ -1,18 +1,45 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import "cally";
+import api from "../utils/api";
+import { useNavigate } from "react-router-dom";
 
 const AddLibur = () => {
+  const [name, setName] = useState("");
+  const [date, setDate] = useState("");
+
+  const navigate = useNavigate();
+
   useEffect(() => {
     const calendar = document.querySelector("calendar-date");
     const button = document.getElementById("cally1");
 
     if (calendar && button) {
       calendar.onchange = function () {
+        const val = this.value;
+        setDate(val);
         button.innerText = this.value;
       };
     }
   }, []);
+
+  const handleAddHoliday = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await api.post("/holiday", {
+        holidayName: name,
+        date: Date.now(),
+        createdBy: localStorage.getItem("username"),
+        updatedBy: localStorage.getItem("username"),
+      });
+      console.log(response.data);
+      navigate("/libur");
+    } catch (error) {
+      console.error(error);
+    }
+    console.log(name);
+    console.log(date);
+  };
 
   return (
     <Layout>
@@ -26,6 +53,8 @@ const AddLibur = () => {
               type="text"
               className="input w-full"
               placeholder="Nama Libur"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
 
             <label className="label mt-4">Tanggal Hari Libur</label>
@@ -71,7 +100,10 @@ const AddLibur = () => {
               <button className="btn bg-white border-orange-500 mt-6 text-orange-300 font-semibold">
                 Batalkan
               </button>
-              <button className="btn bg-orange-500 mt-6 text-white font-semibold">
+              <button
+                onClick={handleAddHoliday}
+                className="btn bg-orange-500 mt-6 text-white font-semibold"
+              >
                 Simpan
               </button>
             </div>

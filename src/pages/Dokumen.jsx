@@ -1,46 +1,42 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { NavLink } from "react-router-dom";
+import api from "../utils/api";
 
 const Dokumen = () => {
-  const dokumenList = [
-    {
-      id: 1,
-      name: "KTP",
-      updatedBy: "Suisei",
-      updatedAt: "10-06-2025",
-    },
-    {
-      id: 2,
-      name: "KK",
-      updatedBy: "Suisei",
-      updatedAt: "10-06-2025",
-    },
-    {
-      id: 3,
-      name: "Buku Tabungan Lama",
-      updatedBy: "Suisei",
-      updatedAt: "10-06-2025",
-    },
-    {
-      id: 4,
-      name: "Materai",
-      updatedBy: "Windah",
-      updatedAt: "10-06-2025",
-    },
-    {
-      id: 5,
-      name: "BA Polisi",
-      updatedBy: "Windah",
-      updatedAt: "10-06-2025",
-    },
-  ];
-
   const [search, setSearch] = useState("");
+  const [document, setDocument] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [docToDelete, setDocToDelete] = useState(null);
 
-  const filteredDoc = dokumenList.filter((doc) =>
-    doc.name.toLowerCase().includes(search.toLowerCase())
+  const getAllDoc = async () => {
+    try {
+      const response = await api.get("/document");
+      setDocument(response.data);
+    } catch (error) {
+      console.error("Error fetching documents:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getAllDoc();
+  }, []);
+
+  const filteredDoc = document.filter((doc) =>
+    (doc.documentName || "").toLowerCase().includes(search.toLowerCase())
   );
+
+  const handleDeleteDoc = async (id) => {
+    try {
+      await api.delete(`/document/${id}`);
+      getAllDoc();
+    } catch (error) {
+      console.error("Delete error:", error);
+    }
+  };
 
   return (
     <Layout>
@@ -65,45 +61,100 @@ const Dokumen = () => {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="table table-zebra w-full">
-              <thead>
-                <tr>
-                  <th>Number</th>
-                  <th>Name</th>
-                  <th>Updated By</th>
-                  <th>Updated At</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredDoc.map((doc, index) => (
-                  <tr key={doc.id}>
-                    <td>{index + 1}</td>
-                    <td>{doc.name}</td>
-                    <td>{doc.updatedBy}</td>
-                    <td>{doc.updatedAt}</td>
-                    <td className="flex gap-2">
-                      <NavLink
-                        to={"/dokumen/edit-dokumen"}
-                        className="btn btn-sm btn-warning"
-                        title="Edit"
-                      >
-                        ✏️
-                      </NavLink>
-                      <button className="btn btn-sm btn-error" title="Delete">
-                        🗑️
-                      </button>
-                    </td>
+            {loading ? (
+              <div className="text-center py-10 font-medium text-gray-600">
+                Loading...
+              </div>
+            ) : filteredDoc.length > 0 ? (
+              <table className="table table-zebra w-full">
+                <thead>
+                  <tr>
+                    <th>Number</th>
+                    <th>Name</th>
+                    <th>Updated By</th>
+                    <th>Updated At</th>
+                    <th>Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {filteredDoc.map((doc, index) => (
+                    <tr key={doc.id}>
+                      <td>{index + 1}</td>
+                      <td>{doc.documentName}</td>
+                      <td>{doc.updatedBy}</td>
+                      <td>{doc.updatedAt}</td>
+                      <td className="flex gap-2">
+                        <NavLink
+                          to={`/dokumen/edit-dokumen/${doc.id}`}
+                          className="btn btn-sm btn-warning"
+                          title="Edit"
+                        >
+                          ✏️
+                        </NavLink>
+                        <button
+                          onClick={() => {
+                            setDocToDelete(doc.id);
+                            setShowConfirm(true);
+                          }}
+                          className="btn btn-sm btn-error"
+                          title="Delete"
+                        >
+                          🗑️
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div className="text-center py-6 text-gray-500">
+                Tidak ada dokumen yang ditemukan.
+              </div>
+            )}
 
-            <div className="text-sm text-gray-500 mt-2">
-              Showing {filteredDoc.length} out of {dokumenList.length} entries
-            </div>
+            {!loading && (
+              <div className="text-sm text-gray-500 mt-2">
+                Showing {filteredDoc.length} out of {document.length} entries
+              </div>
+            )}
           </div>
         </div>
       </div>
+
+      {/* Modal Konfirmasi Delete */}
+      {showConfirm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded shadow-lg max-w-sm w-full">
+            <h3 className="text-lg font-semibold mb-4 text-center">
+              Konfirmasi
+            </h3>
+            <p className="mb-6 text-center">
+              Apakah kamu yakin ingin menghapus dokumen ini?
+            </p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={async () => {
+                  await handleDeleteDoc(docToDelete);
+                  setShowConfirm(false);
+                  setDocToDelete(null);
+                }}
+                className="cursor-pointer px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+              >
+                Ya, Hapus
+              </button>
+              <button
+                onClick={() => {
+                  setShowConfirm(false);
+                  setDocToDelete(null);
+                }}
+                className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
+              >
+                Batal
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 };

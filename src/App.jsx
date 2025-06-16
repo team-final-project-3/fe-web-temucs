@@ -21,25 +21,64 @@ import DetailLayanan from "./pages/DetailLayanan";
 import Dokumen from "./pages/Dokumen";
 import AddDokumen from "./pages/AddDokumen";
 import EditDokumen from "./pages/EditDokumen";
+import ProtectedRoutes from "./components/ProtectedRoutes";
+import AddLoket from "./pages/AddLoket";
+import EditCS from "./pages/EditCS";
+import EditLoket from "./pages/EditLoket";
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/dashboard" element={<Dashboard />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoutes>
+              <Dashboard />
+            </ProtectedRoutes>
+          }
+        />
         <Route path="/profil" element={<Profil />} />
 
         {/* cabang */}
-        <Route path="/cabang" element={<Cabang />} />
-        <Route path="/cabang/add-cabang" element={<AddCabang />} />
-        <Route path="/cabang/edit-cabang" element={<EditCabang />} />
-        <Route path="/cabang/detail-cabang" element={<DetailCabang />} />
-        <Route path="/cabang/detail-cabang/add-cs" element={<AddCS />} />
         <Route
-          path="/cabang/detail-cabang/edit-cs-loket"
-          element={<EditAkunDiCabang />}
+          path="/cabang"
+          element={
+            <ProtectedRoutes>
+              <Cabang />
+            </ProtectedRoutes>
+          }
         />
+        <Route
+          path="/cabang/add-cabang"
+          element={
+            <ProtectedRoutes>
+              <AddCabang />
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/cabang/edit/:id"
+          element={
+            <ProtectedRoutes>
+              <EditCabang />
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/cabang/:id"
+          element={
+            <ProtectedRoutes>
+              <DetailCabang />
+            </ProtectedRoutes>
+          }
+        />
+        <Route path="/cabang/:id/add-cs" element={<AddCS />} />
+        <Route path="/cabang/:id/add-loket" element={<AddLoket />} />
+        <Route path="/cabang/:id/edit-cs" element={<EditCS />} />
+        <Route path="/cabang/:id/edit-loket" element={<EditLoket />} />
+
         {/* libur */}
         <Route path="/libur" element={<Libur />} />
         <Route path="/libur/add-libur" element={<AddLibur />} />
@@ -58,9 +97,30 @@ function App() {
         <Route path="/antrian" element={<Antrian />} />
 
         {/* dokumen */}
-        <Route path="/dokumen" element={<Dokumen />} />
-        <Route path="/dokumen/add-dokumen" element={<AddDokumen />} />
-        <Route path="/dokumen/edit-dokumen" element={<EditDokumen />} />
+        <Route
+          path="/dokumen"
+          element={
+            <ProtectedRoutes>
+              <Dokumen />
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/dokumen/add-dokumen"
+          element={
+            <ProtectedRoutes>
+              <AddDokumen />
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/dokumen/edit-dokumen/:id"
+          element={
+            <ProtectedRoutes>
+              <EditDokumen />
+            </ProtectedRoutes>
+          }
+        />
       </Routes>
     </Router>
   );

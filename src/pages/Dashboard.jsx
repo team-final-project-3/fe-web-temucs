@@ -1,12 +1,27 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import Welcome from "../components/Welcome";
 import { Building2, User2Icon } from "lucide-react";
 import AntrianCharts from "../components/AntrianCharts";
 import TopAntrianCharts from "../components/TopAntrianCharts";
 import TopKeluhanCharts from "../components/TopKeluhanCharts";
+import api from "../utils/api";
 
 const Dashboard = () => {
+  const [cabang, setCabang] = useState([]);
+
+  const getCabang = async () => {
+    const response = await api.get("/branch");
+    console.log(response.data);
+    setCabang(response.data.branches);
+  };
+
+  useEffect(() => {
+    getCabang();
+  }, []);
+
+  console.log(cabang);
+
   return (
     <Layout>
       <Welcome />
@@ -14,7 +29,7 @@ const Dashboard = () => {
         <div className="flex w-full flex-col lg:flex-row text-white">
           <div className="card bg-[#FF7F08] rounded-box h-32 grow flex flex-row items-center justify-center gap-5">
             <Building2 size={80} />
-            <h1 className="text-3xl font-bold">10</h1>
+            <h1 className="text-3xl font-bold">{cabang.length}</h1>
             <div className="flex flex-col text-xl">
               <p>Jumlah</p>
               <p>Cabang</p>

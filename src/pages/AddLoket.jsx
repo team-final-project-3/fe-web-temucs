@@ -3,7 +3,7 @@ import Layout from "../components/Layout";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
 import api from "../utils/api";
 
-const AddCS = () => {
+const AddLoket = () => {
   const { id } = useParams();
   const numericId = parseInt(id, 10);
   console.log(id);
@@ -14,8 +14,8 @@ const AddCS = () => {
 
   const navigate = useNavigate();
 
-  const handleAddCS = async () => {
-    const response = await api.post("/cs/add", {
+  const handleAddLoket = async () => {
+    const response = await api.post("/loket/add", {
       branchId: numericId,
       name,
       username,
@@ -30,7 +30,7 @@ const AddCS = () => {
   return (
     <Layout>
       <div className="min-h-screen">
-        <h2 className="text-2xl font-semibold my-3">ADD CUSTOMER SERVICE</h2>
+        <h2 className="text-2xl font-semibold my-3">ADD LOKET</h2>
 
         <div className="bg-base-100 rounded-lg shadow p-4 border-2 border-gray-300">
           <fieldset className="fieldset rounded-box p-4">
@@ -67,7 +67,7 @@ const AddCS = () => {
                 Batalkan
               </NavLink>
               <button
-                onClick={handleAddCS}
+                onClick={handleAddLoket}
                 className="btn bg-orange-500 mt-4 text-white font-semibold"
               >
                 Tambah
@@ -80,4 +80,4 @@ const AddCS = () => {
   );
 };
 
-export default AddCS;
+export default AddLoket;

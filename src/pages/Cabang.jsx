@@ -1,45 +1,25 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { NavLink } from "react-router-dom";
+import api from "../utils/api";
 
 const Cabang = () => {
-  const branchesData = [
-    { id: 1, name: "KCU JAKARTA KOTA", location: "Jl. Lada No.1, Jakarta." },
-    {
-      id: 2,
-      name: "KCU Pasar Tanah Abang",
-      location: "Jl. Jend. Sudirman Kav 1, Jakarta",
-    },
-    {
-      id: 3,
-      name: "KCP Cempaka Mas",
-      location: "Jl. Letjen. Supripto, Rukan Graha Cempaka",
-    },
-    {
-      id: 4,
-      name: "KCP Cideng",
-      location: "Jl. KH. Hasyim Ashari No. 39B, Jakarta Pusat",
-    },
-    {
-      id: 5,
-      name: "KCP Cikini",
-      location: "Jl. Cikini Raya Kav. 62-64, Jakarta Pusat",
-    },
-    {
-      id: 6,
-      name: "KCP Harmoni",
-      location: "Jl. Gajah Mada No. 3-5, Komp. Pertokoan",
-    },
-    {
-      id: 7,
-      name: "KCU Pasar Tanah Abang",
-      location: "di Jl. Jend. Sudirman Kav 1, Jakarta",
-    },
-  ];
+  const [cabang, setCabang] = useState([]);
 
   const [search, setSearch] = useState("");
 
-  const filteredBranches = branchesData.filter((branch) =>
+  const getCabang = async () => {
+    const response = await api.get("/branch");
+    setCabang(response.data.branches);
+  };
+
+  useEffect(() => {
+    getCabang();
+  }, []);
+
+  console.log(cabang);
+
+  const filteredBranches = cabang.filter((branch) =>
     branch.name.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -72,6 +52,7 @@ const Cabang = () => {
                   <th>Number</th>
                   <th>Name</th>
                   <th>Location</th>
+                  <th>Status</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -80,35 +61,28 @@ const Cabang = () => {
                   <tr key={branch.id}>
                     <td>{index + 1}</td>
                     <td>{branch.name}</td>
-                    <td>{branch.location}</td>
+                    <td>{branch.address}</td>
+                    <td>{branch.status == true ? "Aktif" : "Nonaktif"}</td>
                     <td className="flex gap-2">
                       <NavLink
-                        to={"/cabang/detail-cabang"}
+                        to={`/cabang/${branch.id}`}
                         className="btn btn-sm btn-info"
                         title="View"
                       >
                         👁
                       </NavLink>
                       <NavLink
-                        to={"/cabang/edit-cabang"}
+                        to={`/cabang/edit/${branch.id}`}
                         className="btn btn-sm btn-warning"
                         title="Edit"
                       >
                         ✏️
                       </NavLink>
-                      <button className="btn btn-sm btn-error" title="Delete">
-                        🗑️
-                      </button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-
-            <div className="text-sm text-gray-500 mt-2">
-              Showing {filteredBranches.length} out of {branchesData.length}{" "}
-              entries
-            </div>
           </div>
         </div>
       </div>
