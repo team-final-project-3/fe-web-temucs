@@ -1,46 +1,51 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { NavLink } from "react-router-dom";
+import api from "../utils/api";
+import formatDate from "../utils/formatDate";
 
 const Layanan = () => {
-  const layananData = [
-    {
-      id: 1,
-      name: "Kartu Debet Hilang",
-      updatedBy: "Suisei",
-      updatedAt: "10-06-2025",
-    },
-    {
-      id: 2,
-      name: "Kartu Debet Rusak",
-      updatedBy: "Suisei",
-      updatedAt: "10-06-2025",
-    },
-    {
-      id: 3,
-      name: "Buku Tabungan Hilang",
-      updatedBy: "Suisei",
-      updatedAt: "10-06-2025",
-    },
-    {
-      id: 4,
-      name: "Buku Tabungan Rusak",
-      updatedBy: "Windah",
-      updatedAt: "10-06-2025",
-    },
-    {
-      id: 5,
-      name: "Ganti PIN debet",
-      updatedBy: "Windah",
-      updatedAt: "10-06-2025",
-    },
-  ];
-
   const [search, setSearch] = useState("");
+  const [service, setService] = useState([]);
 
-  const filteredLayanan = layananData.filter((layanan) =>
-    layanan.name.toLowerCase().includes(search.toLowerCase())
+  const getAllServices = async () => {
+    try {
+      const response = await api.get("/service");
+      setService(response.data);
+      console.log(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    getAllServices();
+  }, []);
+
+  const filteredLayanan = service.filter((layanan) =>
+    (layanan.serviceName || "").toLowerCase().includes(search.toLowerCase())
   );
+
+  const handleNonactiveService = async (id) => {
+    const layananToUpdate = service.find((item) => item.id === id);
+    if (!layananToUpdate) return alert("Layanan tidak ditemukan");
+
+    const payload = {
+      serviceName: layananToUpdate.serviceName,
+      estimatedTime: layananToUpdate.estimatedTime,
+      updatedBy: layananToUpdate.updatedBy || "admin",
+      status: !layananToUpdate.status,
+    };
+
+    try {
+      const response = await api.put(`/service/${id}`, payload);
+      console.log(response.data);
+      getAllServices();
+    } catch (error) {
+      console.error("Gagal mengubah status layanan:", error);
+      alert(error?.response?.data?.message || "Terjadi kesalahan.");
+    }
+  };
 
   return (
     <Layout>
@@ -70,6 +75,7 @@ const Layanan = () => {
                 <tr>
                   <th>Number</th>
                   <th>Name</th>
+                  <th>Status</th>
                   <th>Updated By</th>
                   <th>Updated At</th>
                 </tr>
@@ -78,25 +84,30 @@ const Layanan = () => {
                 {filteredLayanan.map((layanan, index) => (
                   <tr key={layanan.id}>
                     <td>{index + 1}</td>
-                    <td>{layanan.name}</td>
+                    <td>{layanan.serviceName}</td>
+                    <td>{layanan.status ? "Aktif" : "Nonaktif"}</td>
                     <td>{layanan.updatedBy}</td>
-                    <td>{layanan.updatedAt}</td>
+                    <td>{formatDate(layanan.updatedAt)}</td>
                     <td className="flex gap-2">
                       <NavLink
-                        to={"/layanan/detail-layanan"}
+                        to={`/layanan/${layanan.id}`}
                         className="btn btn-sm btn-info"
                         title="View"
                       >
                         👁
                       </NavLink>
                       <NavLink
-                        to={"/layanan/edit-layanan"}
+                        to={`/layanan/edit-layanan/${layanan.id}`}
                         className="btn btn-sm btn-warning"
                         title="Edit"
                       >
                         ✏️
                       </NavLink>
-                      <button className="btn btn-sm btn-error" title="Delete">
+                      <button
+                        onClick={() => handleNonactiveService(layanan.id)}
+                        className="btn btn-sm btn-error"
+                        title="Delete"
+                      >
                         🗑️
                       </button>
                     </td>
@@ -106,8 +117,7 @@ const Layanan = () => {
             </table>
 
             <div className="text-sm text-gray-500 mt-2">
-              Showing {filteredLayanan.length} out of {layananData.length}{" "}
-              entries
+              Showing {filteredLayanan.length} out of {service.length} entries
             </div>
           </div>
         </div>

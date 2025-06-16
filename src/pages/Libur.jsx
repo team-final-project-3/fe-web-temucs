@@ -1,46 +1,47 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import { NavLink } from "react-router-dom";
+import api from "../utils/api";
+import formatDate from "../utils/formatDate.js";
 
 const Libur = () => {
-  const holidayData = [
-    {
-      id: 1,
-      name: "Libur tahun baru",
-      date: "01-01-1990",
-      updatedAt: "10-06-2025",
-    },
-    {
-      id: 2,
-      name: "Isra Mi'raj Nabi Muhammad SAW",
-      date: "27-01-2025",
-      updatedAt: "10-06-2025",
-    },
-    {
-      id: 3,
-      name: "Tahun Baru Imlek ",
-      date: "29-01-2025",
-      updatedAt: "10-06-2025",
-    },
-    {
-      id: 4,
-      name: "Hari Suci Nyepi",
-      date: "29-03-2025",
-      updatedAt: "10-06-2025",
-    },
-    {
-      id: 5,
-      name: "Natal",
-      date: "25-12-2025",
-      updatedAt: "10-06-2025",
-    },
-  ];
-
+  const [holidayData, setHolidayData] = useState([]);
   const [search, setSearch] = useState("");
+  const [selectedHoliday, setSelectedHoliday] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+
+  const getHoliday = async () => {
+    try {
+      const response = await api.get("/holiday");
+      setHolidayData(response.data.holidays);
+    } catch (error) {
+      console.error("Gagal mengambil data libur:", error);
+    }
+  };
+
+  useEffect(() => {
+    getHoliday();
+  }, []);
 
   const filteredHoliday = holidayData.filter((holiday) =>
-    holiday.name.toLowerCase().includes(search.toLowerCase())
+    (holiday.holidayName || "").toLowerCase().includes(search.toLowerCase())
   );
+
+  const confirmDelete = (holiday) => {
+    setSelectedHoliday(holiday);
+    setShowModal(true);
+  };
+
+  const handleDeleteHoliday = async () => {
+    try {
+      await api.delete(`/holiday/${selectedHoliday.id}`);
+      setShowModal(false);
+      setSelectedHoliday(null);
+      getHoliday();
+    } catch (error) {
+      console.error("Gagal menghapus libur:", error);
+    }
+  };
 
   return (
     <Layout>
@@ -58,7 +59,7 @@ const Libur = () => {
             />
             <NavLink
               to={"/libur/add-libur"}
-              className="ml-2 px-4 py-2 font-semibold rounded text-white bg-orange-500 hover:bg-orange-600 cursor-pointer"
+              className="ml-2 px-4 py-2 font-semibold rounded text-white bg-orange-500 hover:bg-orange-600"
             >
               + Add
             </NavLink>
@@ -72,24 +73,29 @@ const Libur = () => {
                   <th>Name</th>
                   <th>Date</th>
                   <th>Updated At</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredHoliday.map((holiday, index) => (
                   <tr key={holiday.id}>
                     <td>{index + 1}</td>
-                    <td>{holiday.name}</td>
-                    <td>{holiday.date}</td>
-                    <td>{holiday.updatedAt}</td>
+                    <td>{holiday.holidayName}</td>
+                    <td>{formatDate(holiday.date)}</td>
+                    <td>{formatDate(holiday.updatedAt)}</td>
                     <td className="flex gap-2">
                       <NavLink
-                        to={"/libur/edit-libur"}
+                        to={`/libur/edit-libur/${holiday.id}`}
                         className="btn btn-sm btn-warning"
                         title="Edit"
                       >
                         ✏️
                       </NavLink>
-                      <button className="btn btn-sm btn-error" title="Delete">
+                      <button
+                        onClick={() => confirmDelete(holiday)}
+                        className="btn btn-sm btn-error"
+                        title="Delete"
+                      >
                         🗑️
                       </button>
                     </td>
@@ -104,6 +110,32 @@ const Libur = () => {
             </div>
           </div>
         </div>
+
+        {showModal && selectedHoliday && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-white p-6 rounded-lg shadow-md max-w-sm w-full">
+              <h3 className="text-lg font-semibold mb-4">Konfirmasi Hapus</h3>
+              <p>
+                Apakah kamu yakin ingin menghapus libur{" "}
+                <strong>{selectedHoliday.name}</strong>?
+              </p>
+              <div className="flex justify-end gap-4 mt-6">
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="btn btn-sm"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={handleDeleteHoliday}
+                  className="btn btn-sm btn-error"
+                >
+                  Hapus
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </Layout>
   );

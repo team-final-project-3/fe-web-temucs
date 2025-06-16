@@ -1,6 +1,3 @@
 yg blm:
-- api edit dan delete cs
-- api edit loket
-- api add Libur
-- api edit Libur
-- api delete libur
+- popup
+- tombol delete sebagai yg menonaktifkan cabang

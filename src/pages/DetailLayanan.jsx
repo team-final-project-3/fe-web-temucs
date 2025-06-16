@@ -1,6 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
-import { NavLink } from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
+import api from "../utils/api";
+import formatDate from "../utils/formatDate";
 
 const DetailLayanan = () => {
   const dokumenLayanan = [
@@ -24,14 +26,33 @@ const DetailLayanan = () => {
     },
   ];
 
+  const [serviceDetail, setServiceDetail] = useState([]);
+  const [serviceDocument, setServiceDocument] = useState([]);
+
+  const { id } = useParams();
+  const getDetailLayanan = async () => {
+    try {
+      const response = await api.get(`/service/${id}`);
+      console.log(response.data);
+      setServiceDetail(response.data);
+      setServiceDocument(response.data.documents);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    getDetailLayanan();
+  }, []);
+
   return (
     <Layout>
       <div className="min-h-screen">
-        <h2 className="text-2xl font-semibold my-3">LIHAT DOKUMEN</h2>
+        <h2 className="text-2xl font-semibold my-3">Lihat Dokumen</h2>
 
         <div className="bg-base-100 rounded-lg shadow p-4 border-2 border-gray-300">
           <div className="text-orange-500 text-2xl uppercase font-semibold my-4 mx-3">
-            Kartu Debet Hilang
+            {serviceDetail.serviceName}
           </div>
           <div className="overflow-x-auto">
             <table className="table table-zebra w-full">
@@ -44,12 +65,12 @@ const DetailLayanan = () => {
                 </tr>
               </thead>
               <tbody>
-                {dokumenLayanan.map((layanan, index) => (
-                  <tr key={layanan.id}>
+                {serviceDocument.map((detailLayanan, index) => (
+                  <tr key={detailLayanan.id}>
                     <td>{index + 1}</td>
-                    <td>{layanan.name}</td>
-                    <td>{layanan.updatedBy}</td>
-                    <td>{layanan.updatedAt}</td>
+                    <td>{detailLayanan.documentName}</td>
+                    <td>{detailLayanan.updatedBy}</td>
+                    <td>{formatDate(detailLayanan.updatedAt)}</td>
                   </tr>
                 ))}
               </tbody>

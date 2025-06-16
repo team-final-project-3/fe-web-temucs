@@ -16,6 +16,7 @@ const ProtectedRoutes = ({ children }) => {
     if (role == "cs") {
       return <Navigate to="/" replace />;
     }
+
     if (role !== "admin") {
       return <Navigate to="/" replace />;
     }

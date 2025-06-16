@@ -4,36 +4,67 @@ import { NavLink, useNavigate, useParams } from "react-router-dom";
 import api from "../utils/api";
 
 const EditCS = () => {
-  const { id } = useParams();
-  const numericId = parseInt(id, 10);
-  console.log(id);
+  const { branchId, csId } = useParams();
+  console.log(branchId, csId);
+
+  const navigate = useNavigate();
 
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const navigate = useNavigate();
+  const getCSDetail = async () => {
+    try {
+      const response = await api.get(`/branch/${branchId}`);
+      console.log(response.data);
+
+      const cs = response.data.branch.cs.find((l) => l.id === parseInt(csId));
+
+      if (cs) {
+        setName(cs.name);
+        setUsername(cs.username);
+      } else {
+        console.warn("Data cs tidak ditemukan.");
+      }
+    } catch (err) {
+      console.error("Gagal mengambil detail cs:", err);
+    }
+  };
+
+  useEffect(() => {
+    getCSDetail();
+  }, []);
 
   const handleEditCS = async () => {
-    const response = await api.post("/cs/add", {
-      branchId: numericId,
-      name,
-      username,
-      password,
-      createdBy: localStorage.getItem("username"),
-    });
+    try {
+      if (!name || !username) {
+        alert("Nama dan Username wajib diisi.");
+        return;
+      }
 
-    navigate(`/cabang/${numericId}`);
-    console.log(response.data);
+      const payload = {
+        name,
+        username,
+        password,
+        updatedBy: "admin",
+      };
+
+      if (password) payload.password = password;
+
+      await api.put(`/cs/${csId}`, payload);
+      navigate(`/cabang/${branchId}`);
+    } catch (err) {
+      console.error("Gagal update cs:", err);
+    }
   };
 
   return (
     <Layout>
       <div className="min-h-screen">
-        <h2 className="text-2xl font-semibold my-3">ADD CUSTOMER SERVICE</h2>
+        <h2 className="text-2xl font-semibold my-3">EDIT CS</h2>
 
         <div className="bg-base-100 rounded-lg shadow p-4 border-2 border-gray-300">
-          <fieldset className="fieldset rounded-box p-4">
+          <fieldset className="fieldset rounded-box p-4 space-y-3">
             <label className="label">Nama</label>
             <input
               type="text"
@@ -42,6 +73,7 @@ const EditCS = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
+
             <label className="label">Username</label>
             <input
               type="text"
@@ -50,27 +82,28 @@ const EditCS = () => {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
-            <label className="label">Password</label>
+
+            <label className="label">Password (opsional)</label>
             <input
               type="password"
               className="input w-full"
-              placeholder="Password"
+              placeholder="Kosongkan jika tidak ingin mengganti"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
 
-            <div className="flex justify-center gap-5">
+            <div className="flex justify-center gap-5 pt-4">
               <NavLink
-                to={`/cabang/${numericId}`}
-                className="btn bg-white border-orange-500 mt-4 text-orange-300 font-semibold"
+                to={`/cabang/${branchId}`}
+                className="btn bg-white border-orange-500 text-orange-500 hover:bg-orange-100"
               >
                 Batalkan
               </NavLink>
               <button
                 onClick={handleEditCS}
-                className="btn bg-orange-500 mt-4 text-white font-semibold"
+                className="btn bg-orange-500 text-white hover:bg-orange-600"
               >
-                Tambah
+                Simpan Perubahan
               </button>
             </div>
           </fieldset>

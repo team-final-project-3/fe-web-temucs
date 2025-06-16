@@ -12,7 +12,6 @@ const EditCabang = () => {
   const [address, setAddress] = useState("");
   const [longitude, setLongitude] = useState("");
   const [latitude, setLatitude] = useState("");
-  const [status, setStatus] = useState("");
 
   useEffect(() => {
     const fetchCabang = async () => {
@@ -26,7 +25,6 @@ const EditCabang = () => {
         setAddress(data.address || "");
         setLongitude(data.longitude?.toString() || "");
         setLatitude(data.latitude?.toString() || "");
-        setStatus(data.status || "");
       } catch (error) {
         console.error("Gagal memuat data cabang:", error);
       }
@@ -44,7 +42,6 @@ const EditCabang = () => {
         address,
         longitude: parseFloat(longitude),
         latitude: parseFloat(latitude),
-        status: status === "true",
         updatedBy: localStorage.getItem("username"),
       };
 
@@ -97,19 +94,6 @@ const EditCabang = () => {
               value={latitude}
               onChange={(e) => setLatitude(e.target.value)}
             />
-            <label className="label">Status</label>
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              className="select w-full"
-            >
-              <option value="" disabled>
-                Status Cabang
-              </option>
-              <option value="true">Aktif</option>
-              <option value="false">Nonaktif</option>
-            </select>
-
             <div className="flex justify-center gap-5">
               <NavLink
                 to={"/cabang"}

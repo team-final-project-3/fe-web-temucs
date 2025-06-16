@@ -51,11 +51,6 @@ const Login = () => {
             >
               Login
             </NavLink>
-            <div className="flex w-full justify-end">
-              <NavLink to={"/"} type="submit" className="text-[#F27F0C] italic">
-                Login as CS
-              </NavLink>
-            </div>
           </form>
         </div>
       </div>

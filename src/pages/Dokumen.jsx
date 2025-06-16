@@ -7,8 +7,8 @@ const Dokumen = () => {
   const [search, setSearch] = useState("");
   const [document, setDocument] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showConfirm, setShowConfirm] = useState(false);
-  const [docToDelete, setDocToDelete] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedDoc, setSelectedDoc] = useState(null);
 
   const getAllDoc = async () => {
     try {
@@ -29,13 +29,30 @@ const Dokumen = () => {
     (doc.documentName || "").toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleDeleteDoc = async (id) => {
+  const confirmDelete = (doc) => {
+    setSelectedDoc(doc);
+    setShowModal(true);
+  };
+
+  const handleDeleteDoc = async () => {
     try {
-      await api.delete(`/document/${id}`);
+      await api.delete(`/document/${selectedDoc.id}`);
+      setShowModal(false);
+      setSelectedDoc(null);
       getAllDoc();
     } catch (error) {
       console.error("Delete error:", error);
     }
+  };
+
+  const formatDate = (dateString) => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
   };
 
   return (
@@ -82,7 +99,7 @@ const Dokumen = () => {
                       <td>{index + 1}</td>
                       <td>{doc.documentName}</td>
                       <td>{doc.updatedBy}</td>
-                      <td>{doc.updatedAt}</td>
+                      <td>{formatDate(doc.updatedAt)}</td>
                       <td className="flex gap-2">
                         <NavLink
                           to={`/dokumen/edit-dokumen/${doc.id}`}
@@ -92,10 +109,7 @@ const Dokumen = () => {
                           ✏️
                         </NavLink>
                         <button
-                          onClick={() => {
-                            setDocToDelete(doc.id);
-                            setShowConfirm(true);
-                          }}
+                          onClick={() => confirmDelete(doc)}
                           className="btn btn-sm btn-error"
                           title="Delete"
                         >
@@ -121,35 +135,26 @@ const Dokumen = () => {
         </div>
       </div>
 
-      {/* Modal Konfirmasi Delete */}
-      {showConfirm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded shadow-lg max-w-sm w-full">
-            <h3 className="text-lg font-semibold mb-4 text-center">
-              Konfirmasi
-            </h3>
-            <p className="mb-6 text-center">
-              Apakah kamu yakin ingin menghapus dokumen ini?
+      {showModal && selectedDoc && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="bg-white p-6 rounded-lg shadow-md max-w-sm w-full">
+            <h3 className="text-lg font-semibold mb-4">Konfirmasi Hapus</h3>
+            <p>
+              Apakah kamu yakin ingin menghapus dokumen{" "}
+              <strong>{selectedDoc.documentName}</strong>?
             </p>
-            <div className="flex justify-center gap-4">
+            <div className="flex justify-end gap-4 mt-6">
               <button
-                onClick={async () => {
-                  await handleDeleteDoc(docToDelete);
-                  setShowConfirm(false);
-                  setDocToDelete(null);
-                }}
-                className="cursor-pointer px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-              >
-                Ya, Hapus
-              </button>
-              <button
-                onClick={() => {
-                  setShowConfirm(false);
-                  setDocToDelete(null);
-                }}
-                className="px-4 py-2 bg-gray-300 text-gray-800 rounded hover:bg-gray-400"
+                onClick={() => setShowModal(false)}
+                className="btn btn-sm"
               >
                 Batal
+              </button>
+              <button
+                onClick={handleDeleteDoc}
+                className="btn btn-sm btn-error"
+              >
+                Hapus
               </button>
             </div>
           </div>

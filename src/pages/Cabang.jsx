@@ -5,23 +5,48 @@ import api from "../utils/api";
 
 const Cabang = () => {
   const [cabang, setCabang] = useState([]);
-
   const [search, setSearch] = useState("");
 
   const getCabang = async () => {
-    const response = await api.get("/branch");
-    setCabang(response.data.branches);
+    try {
+      const response = await api.get("/branch");
+      setCabang(response.data.branches);
+    } catch (error) {
+      console.error("Gagal mengambil data cabang:", error);
+    }
   };
 
   useEffect(() => {
     getCabang();
   }, []);
 
-  console.log(cabang);
-
   const filteredBranches = cabang.filter((branch) =>
     branch.name.toLowerCase().includes(search.toLowerCase())
   );
+
+  const handleToggleStatus = async (id) => {
+    const cabangToUpdate = cabang.find((item) => item.id === id);
+    if (!cabangToUpdate) return alert("Cabang tidak ditemukan");
+
+    const payload = {
+      name: cabangToUpdate.name,
+      branchCode: cabangToUpdate.branchCode,
+      address: cabangToUpdate.address,
+      longitude: cabangToUpdate.longitude,
+      latitude: cabangToUpdate.latitude,
+      holiday: cabangToUpdate.holiday,
+      status: !cabangToUpdate.status,
+      updatedBy: cabangToUpdate.updatedBy,
+    };
+
+    try {
+      await api.put(`/branch/${id}`, payload);
+      getCabang();
+    } catch (error) {
+      console.error("Gagal mengubah status cabang:", error);
+      alert(error?.response?.data?.message || "Terjadi kesalahan.");
+    }
+  };
 
   return (
     <Layout>
@@ -62,7 +87,7 @@ const Cabang = () => {
                     <td>{index + 1}</td>
                     <td>{branch.name}</td>
                     <td>{branch.address}</td>
-                    <td>{branch.status == true ? "Aktif" : "Nonaktif"}</td>
+                    <td>{branch.status === true ? "Aktif" : "Nonaktif"}</td>
                     <td className="flex gap-2">
                       <NavLink
                         to={`/cabang/${branch.id}`}
@@ -78,11 +103,24 @@ const Cabang = () => {
                       >
                         ✏️
                       </NavLink>
+                      <button
+                        onClick={() => handleToggleStatus(branch.id)}
+                        className={`btn btn-sm ${
+                          branch.status ? "btn-error" : "btn-success"
+                        }`}
+                        title={branch.status ? "Nonaktifkan" : "Aktifkan"}
+                      >
+                        {branch.status ? "🗑️" : "✅"}
+                      </button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+
+            <div className="text-sm text-gray-500 mt-2">
+              Showing {filteredBranches.length} out of {cabang.length} entries
+            </div>
           </div>
         </div>
       </div>

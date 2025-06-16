@@ -8,13 +8,11 @@ const DetailCabang = () => {
   const [branchDetail, setBranchDetail] = useState("");
   const [listCS, setListCS] = useState([]);
   const [listLoket, setListLoket] = useState([]);
+  const [selectedCS, setSelectedCS] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   const { id } = useParams();
   const numericId = parseInt(id, 10);
-
-  console.log(id);
-
-  console.log(numericId);
 
   const getBranchDetail = async () => {
     const response = await api.get(`/branch/${numericId}`);
@@ -27,9 +25,21 @@ const DetailCabang = () => {
     getBranchDetail();
   }, []);
 
-  console.log(branchDetail);
-  console.log(listCS);
-  console.log(listLoket);
+  const confirmDeleteCS = (cs) => {
+    setSelectedCS(cs);
+    setShowModal(true);
+  };
+
+  const handleDeleteCS = async () => {
+    try {
+      await api.delete(`/cs/${selectedCS.id}`);
+      setShowModal(false);
+      setSelectedCS(null);
+      getBranchDetail();
+    } catch (error) {
+      console.error("Delete CS error:", error);
+    }
+  };
 
   return (
     <Layout>
@@ -70,13 +80,12 @@ const DetailCabang = () => {
             />
           </div>
 
+          {/* Loket Section */}
           <div className="flex items-center justify-between px-4">
             <div className="w-1/3"></div>
-
             <div className="w-1/3 text-center">
               <h2 className="text-lg font-semibold">KELOLA LOKET</h2>
             </div>
-
             <div className="w-1/3 flex justify-end">
               <NavLink
                 to={`/cabang/${id}/add-loket`}
@@ -132,13 +141,12 @@ const DetailCabang = () => {
             </div>
           </div>
 
+          {/* CS Section */}
           <div className="flex items-center justify-between px-4">
             <div className="w-1/3"></div>
-
             <div className="w-1/3 text-center">
               <h2 className="text-lg font-semibold">KELOLA CS</h2>
             </div>
-
             <div className="w-1/3 flex justify-end">
               <NavLink
                 to={`/cabang/${id}/add-cs`}
@@ -173,7 +181,7 @@ const DetailCabang = () => {
                         <td>{cs.createdAt}</td>
                         <td className="flex gap-2">
                           <NavLink
-                            to={`/cabang/${id}/edit-cs`}
+                            to={`/cabang/${id}/edit-cs/${cs.id}`}
                             className="btn btn-sm btn-warning"
                             title="Edit"
                           >
@@ -182,6 +190,7 @@ const DetailCabang = () => {
                           <button
                             className="btn btn-sm btn-error"
                             title="Delete"
+                            onClick={() => confirmDeleteCS(cs)}
                           >
                             🗑️
                           </button>
@@ -200,6 +209,35 @@ const DetailCabang = () => {
             </div>
           </div>
         </div>
+
+        {/* Modal Confirm Delete CS */}
+        {showModal && selectedCS && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-white p-6 rounded-lg shadow-md max-w-sm w-full">
+              <h3 className="text-lg font-semibold mb-4 text-center">
+                Konfirmasi Hapus
+              </h3>
+              <p className="text-center">
+                Apakah kamu yakin ingin menghapus CS{" "}
+                <strong>{selectedCS.name}</strong>?
+              </p>
+              <div className="flex justify-center gap-4 mt-6">
+                <button
+                  onClick={() => setShowModal(false)}
+                  className="btn btn-sm"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={handleDeleteCS}
+                  className="btn btn-sm btn-error"
+                >
+                  Hapus
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </Layout>
   );

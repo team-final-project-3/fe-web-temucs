@@ -7,10 +7,8 @@ import Nasabah from "./pages/Nasabah";
 import Libur from "./pages/Libur";
 import Layanan from "./pages/Layanan";
 import Antrian from "./pages/Antrian";
-import Profil from "./pages/Profil";
 import DetailCabang from "./pages/DetailCabang";
 import AddCS from "./pages/AddCS";
-import EditAkunDiCabang from "./pages/EditAkunDiCabang";
 import AddCabang from "./pages/AddCabang";
 import EditCabang from "./pages/EditCabang";
 import AddLibur from "./pages/AddLibur";
@@ -25,14 +23,11 @@ import ProtectedRoutes from "./components/ProtectedRoutes";
 import AddLoket from "./pages/AddLoket";
 import EditCS from "./pages/EditCS";
 import EditLoket from "./pages/EditLoket";
-import LoginCS from "./pages/LoginCS";
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* <Route path="/" element={<LoginCS />} /> */}
-        {/* <Route path="/admin" element={<Login />} /> */}
         <Route path="/" element={<Login />} />
         <Route
           path="/dashboard"
@@ -42,8 +37,6 @@ function App() {
             </ProtectedRoutes>
           }
         />
-        <Route path="/profil" element={<Profil />} />
-
         {/* cabang */}
         <Route
           path="/cabang"
@@ -77,30 +70,118 @@ function App() {
             </ProtectedRoutes>
           }
         />
-        <Route path="/cabang/:id/add-cs" element={<AddCS />} />
-        <Route path="/cabang/:id/add-loket" element={<AddLoket />} />
-        <Route path="/cabang/:id/edit-cs" element={<EditCS />} />
+        <Route
+          path="/cabang/:id/add-cs"
+          element={
+            <ProtectedRoutes>
+              <AddCS />
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/cabang/:id/add-loket"
+          element={
+            <ProtectedRoutes>
+              <AddLoket />
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/cabang/:branchId/edit-cs/:csId"
+          element={
+            <ProtectedRoutes>
+              <EditCS />
+            </ProtectedRoutes>
+          }
+        />
         <Route
           path="/cabang/:branchId/edit-loket/:loketId"
-          element={<EditLoket />}
+          element={
+            <ProtectedRoutes>
+              <EditLoket />
+            </ProtectedRoutes>
+          }
         />
 
         {/* libur */}
-        <Route path="/libur" element={<Libur />} />
-        <Route path="/libur/add-libur" element={<AddLibur />} />
-        <Route path="/libur/edit-libur" element={<EditLibur />} />
+        <Route
+          path="/libur"
+          element={
+            <ProtectedRoutes>
+              <Libur />
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/libur/add-libur"
+          element={
+            <ProtectedRoutes>
+              <AddLibur />
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/libur/edit-libur"
+          element={
+            <ProtectedRoutes>
+              <EditLibur />
+            </ProtectedRoutes>
+          }
+        />
 
         {/* nasabah */}
-        <Route path="/nasabah" element={<Nasabah />} />
+        <Route
+          path="/nasabah"
+          element={
+            <ProtectedRoutes>
+              <Nasabah />
+            </ProtectedRoutes>
+          }
+        />
 
         {/* layanan */}
-        <Route path="/layanan" element={<Layanan />} />
-        <Route path="/layanan/detail-layanan" element={<DetailLayanan />} />
-        <Route path="/layanan/add-layanan" element={<AddLayanan />} />
-        <Route path="/layanan/edit-layanan" element={<EditLayanan />} />
+        <Route
+          path="/layanan"
+          element={
+            <ProtectedRoutes>
+              <Layanan />
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/layanan/:id"
+          element={
+            <ProtectedRoutes>
+              <DetailLayanan />
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/layanan/add-layanan"
+          element={
+            <ProtectedRoutes>
+              <AddLayanan />
+            </ProtectedRoutes>
+          }
+        />
+        <Route
+          path="/layanan/edit-layanan/:id"
+          element={
+            <ProtectedRoutes>
+              <EditLayanan />
+            </ProtectedRoutes>
+          }
+        />
 
         {/* antrian */}
-        <Route path="/antrian" element={<Antrian />} />
+        <Route
+          path="/antrian"
+          element={
+            <ProtectedRoutes>
+              <Antrian />
+            </ProtectedRoutes>
+          }
+        />
 
         {/* dokumen */}
         <Route
