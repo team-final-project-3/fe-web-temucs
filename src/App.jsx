@@ -25,11 +25,14 @@ import ProtectedRoutes from "./components/ProtectedRoutes";
 import AddLoket from "./pages/AddLoket";
 import EditCS from "./pages/EditCS";
 import EditLoket from "./pages/EditLoket";
+import LoginCS from "./pages/LoginCS";
 
 function App() {
   return (
     <Router>
       <Routes>
+        {/* <Route path="/" element={<LoginCS />} /> */}
+        {/* <Route path="/admin" element={<Login />} /> */}
         <Route path="/" element={<Login />} />
         <Route
           path="/dashboard"
@@ -77,7 +80,10 @@ function App() {
         <Route path="/cabang/:id/add-cs" element={<AddCS />} />
         <Route path="/cabang/:id/add-loket" element={<AddLoket />} />
         <Route path="/cabang/:id/edit-cs" element={<EditCS />} />
-        <Route path="/cabang/:id/edit-loket" element={<EditLoket />} />
+        <Route
+          path="/cabang/:branchId/edit-loket/:loketId"
+          element={<EditLoket />}
+        />
 
         {/* libur */}
         <Route path="/libur" element={<Libur />} />

@@ -111,7 +111,7 @@ const DetailCabang = () => {
                         <td>{loket.createdAt}</td>
                         <td className="flex gap-2">
                           <NavLink
-                            to={`/cabang/${id}/edit-loket`}
+                            to={`/cabang/${id}/edit-loket/${loket.id}`}
                             className="btn btn-sm btn-warning"
                             title="Edit"
                           >

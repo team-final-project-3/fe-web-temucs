@@ -3,7 +3,7 @@ import LogoTemuNoBg from "../../public/images/logo_temu_no_bg.png";
 import { NavLink, useNavigate } from "react-router-dom";
 import api from "../utils/api";
 
-const Login = () => {
+const LoginCS = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
@@ -30,7 +30,7 @@ const Login = () => {
         </div>
         <div>
           <form className="flex flex-col gap-5">
-            <h1 className="text-center font-bold">Sign In as Super Admin</h1>
+            <h1 className="text-center font-bold">Sign In as CS</h1>
             <input
               className="input"
               type="text"
@@ -52,8 +52,12 @@ const Login = () => {
               Login
             </NavLink>
             <div className="flex w-full justify-end">
-              <NavLink to={"/"} type="submit" className="text-[#F27F0C] italic">
-                Login as CS
+              <NavLink
+                to={"/admin"}
+                type="submit"
+                className="text-[#F27F0C] italic"
+              >
+                Login as Admin
               </NavLink>
             </div>
           </form>
@@ -63,4 +67,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default LoginCS;

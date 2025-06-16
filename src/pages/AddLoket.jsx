@@ -20,7 +20,7 @@ const AddLoket = () => {
       name,
       username,
       password,
-      createdBy: localStorage.getItem("username"),
+      createdBy: "admin",
     });
 
     navigate(`/cabang/${numericId}`);

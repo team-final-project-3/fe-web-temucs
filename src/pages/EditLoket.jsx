@@ -4,23 +4,28 @@ import { NavLink, useNavigate, useParams } from "react-router-dom";
 import api from "../utils/api";
 
 const EditLoket = () => {
-  const { id } = useParams();
+  const { branchId, loketId } = useParams(); // ambil dari URL
   const navigate = useNavigate();
 
-  const [branchId, setBranchId] = useState(null);
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
   const getLoketDetail = async () => {
     try {
-      const response = await api.get(`/cabang/${id}`);
+      const response = await api.get(`/branch/${branchId}`);
       console.log(response.data);
 
-      const data = response.data[0].loket;
-      setBranchId(data.branchId);
-      setName(data.name);
-      setUsername(data.username);
+      const loket = response.data.branch.lokets.find(
+        (l) => l.id === parseInt(loketId)
+      );
+
+      if (loket) {
+        setName(loket.name);
+        setUsername(loket.username);
+      } else {
+        console.warn("Data loket tidak ditemukan.");
+      }
     } catch (err) {
       console.error("Gagal mengambil detail loket:", err);
     }
@@ -40,12 +45,13 @@ const EditLoket = () => {
       const payload = {
         name,
         username,
-        updatedBy: localStorage.getItem("username"),
+        password,
+        updatedBy: "admin",
       };
 
       if (password) payload.password = password;
 
-      await api.put(`/loket/${id}`, payload);
+      await api.put(`/loket/${loketId}`, payload);
       navigate(`/cabang/${branchId}`);
     } catch (err) {
       console.error("Gagal update loket:", err);
@@ -67,6 +73,7 @@ const EditLoket = () => {
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
+
             <label className="label">Username</label>
             <input
               type="text"
@@ -75,6 +82,7 @@ const EditLoket = () => {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
             />
+
             <label className="label">Password (opsional)</label>
             <input
               type="password"

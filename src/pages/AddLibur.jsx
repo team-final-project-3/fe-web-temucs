@@ -28,9 +28,9 @@ const AddLibur = () => {
     try {
       const response = await api.post("/holiday", {
         holidayName: name,
-        date: Date.now(),
-        createdBy: localStorage.getItem("username"),
-        updatedBy: localStorage.getItem("username"),
+        date,
+        createdBy: "admin",
+        updatedBy: "admin",
       });
       console.log(response.data);
       navigate("/libur");
