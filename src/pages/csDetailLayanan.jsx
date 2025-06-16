@@ -50,11 +50,11 @@ const csDetailLayanan = () => {
           </div>
 
           {/* Box Kanan */}
-          <div className="w-[200px] bg-white rounded-md shadow p-6 text-center flex flex-col items-center justify-center">
+          <div className="w-[300px] bg-white rounded-md shadow p-6 text-center flex flex-col items-center justify-center">
             <p className="text-sm mb-2">Antrian No :</p>
-            <p className="text-5xl text-orange-500 font-bold mb-4">001</p>
+            <p className="text-7xl text-orange-500 font-bold mb-4">001</p>
             <button
-              className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600 w-full cursor-pointer"
+              className="bg-green-500 text-white px-4 py-5 rounded-md hover:bg-green-600 w-full cursor-pointer"
               onClick={() => navigate("/cs-dashboard")}
             >
               DONE

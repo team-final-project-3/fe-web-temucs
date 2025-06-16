@@ -50,18 +50,18 @@ const csLayanan = () => {
           </div>
 
           {/* Panel Info Antrian */}
-          <div className="w-[200px] bg-white rounded-md shadow p-6 text-center flex flex-col items-center justify-center">
+          <div className="w-[300px] bg-white rounded-md shadow p-6 text-center flex flex-col items-center justify-center">
             <p className="text-sm mb-2">Antrian No :</p>
-            <p className="text-5xl text-orange-500 font-bold mb-2">001</p>
+            <p className="text-7xl text-orange-500 font-bold mb-2">001</p>
             <p className="text-sm mb-4">Buku Hilang, Riset Pin</p>
             <button
-              className="w-full bg-red-500 text-white py-2 rounded-md mb-2 hover:bg-red-600 cursor-pointer"
+              className="w-full bg-red-500 text-white py-5   rounded-md mb-2 hover:bg-red-600 cursor-pointer"
               onClick={() => navigate("/cs-dashboard")}
             >
               SKIP
             </button>
             <button
-              className="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 cursor-pointer"
+              className="w-full bg-green-500 text-white py-5 rounded-md hover:bg-green-600 cursor-pointer"
               onClick={() => navigate("/cs-detail-layanan")}
             >
               TAKE
