@@ -137,11 +137,6 @@ const Cabang = () => {
                     ))}
                   </tbody>
                 </table>
-
-                <div className="text-sm text-gray-500 mt-2">
-                  Showing {filteredBranches.length} out of {cabang.length}{" "}
-                  entries
-                </div>
               </>
             ) : (
               <div className="text-center py-6 text-gray-500">

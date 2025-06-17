@@ -144,11 +144,6 @@ const Layanan = () => {
                     ))}
                   </tbody>
                 </table>
-
-                <div className="text-sm text-gray-500 mt-2">
-                  Showing {filteredLayanan.length} out of {service.length}{" "}
-                  entries
-                </div>
               </>
             ) : (
               <div className="text-center py-6 text-gray-500">

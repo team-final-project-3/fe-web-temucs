@@ -39,10 +39,10 @@ const EditLoket = () => {
   const handleEditLoket = async () => {
     const newErrors = {};
 
-    if (!name.trim()) newErrors.name = "Field ini harus diisi";
+    if (!name.trim()) newErrors.name = "Field Name harus diisi";
 
     if (!username.trim()) {
-      newErrors.username = "Field ini harus diisi";
+      newErrors.username = "Field Username harus diisi";
     } else if (!hasNoSpaces(username)) {
       newErrors.username = "Tidak boleh mengandung spasi";
     }

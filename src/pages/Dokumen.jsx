@@ -125,12 +125,6 @@ const Dokumen = () => {
                 Tidak ada dokumen yang ditemukan.
               </div>
             )}
-
-            {!loading && (
-              <div className="text-sm text-gray-500 mt-2">
-                Showing {filteredDoc.length} out of {document.length} entries
-              </div>
-            )}
           </div>
         </div>
       </div>
