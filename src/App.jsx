@@ -121,7 +121,7 @@ function App() {
           }
         />
         <Route
-          path="/libur/edit-libur"
+          path="/libur/edit-libur/:id"
           element={
             <ProtectedRoutes>
               <EditLibur />
