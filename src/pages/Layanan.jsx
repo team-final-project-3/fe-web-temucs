@@ -7,14 +7,20 @@ import formatDate from "../utils/formatDate";
 const Layanan = () => {
   const [search, setSearch] = useState("");
   const [service, setService] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingId, setLoadingId] = useState(null);
+  const [selectedService, setSelectedService] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   const getAllServices = async () => {
+    setLoading(true);
     try {
       const response = await api.get("/service");
       setService(response.data);
-      console.log(response.data);
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -26,8 +32,13 @@ const Layanan = () => {
     (layanan.serviceName || "").toLowerCase().includes(search.toLowerCase())
   );
 
-  const handleNonactiveService = async (id) => {
-    const layananToUpdate = service.find((item) => item.id === id);
+  const confirmToggleStatus = (layanan) => {
+    setSelectedService(layanan);
+    setShowModal(true);
+  };
+
+  const handleNonactiveService = async () => {
+    const layananToUpdate = selectedService;
     if (!layananToUpdate) return alert("Layanan tidak ditemukan");
 
     const payload = {
@@ -38,12 +49,16 @@ const Layanan = () => {
     };
 
     try {
-      const response = await api.put(`/service/${id}`, payload);
-      console.log(response.data);
-      getAllServices();
+      setLoadingId(layananToUpdate.id);
+      await api.put(`/service/${layananToUpdate.id}`, payload);
+      await getAllServices();
     } catch (error) {
       console.error("Gagal mengubah status layanan:", error);
       alert(error?.response?.data?.message || "Terjadi kesalahan.");
+    } finally {
+      setLoadingId(null);
+      setShowModal(false);
+      setSelectedService(null);
     }
   };
 
@@ -70,57 +85,112 @@ const Layanan = () => {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="table table-zebra w-full">
-              <thead>
-                <tr>
-                  <th>Number</th>
-                  <th>Name</th>
-                  <th>Status</th>
-                  <th>Updated By</th>
-                  <th>Updated At</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredLayanan.map((layanan, index) => (
-                  <tr key={layanan.id}>
-                    <td>{index + 1}</td>
-                    <td>{layanan.serviceName}</td>
-                    <td>{layanan.status ? "Aktif" : "Nonaktif"}</td>
-                    <td>{layanan.updatedBy}</td>
-                    <td>{formatDate(layanan.updatedAt)}</td>
-                    <td className="flex gap-2">
-                      <NavLink
-                        to={`/layanan/${layanan.id}`}
-                        className="btn btn-sm btn-info"
-                        title="View"
-                      >
-                        👁
-                      </NavLink>
-                      <NavLink
-                        to={`/layanan/edit-layanan/${layanan.id}`}
-                        className="btn btn-sm btn-warning"
-                        title="Edit"
-                      >
-                        ✏️
-                      </NavLink>
-                      <button
-                        onClick={() => handleNonactiveService(layanan.id)}
-                        className="btn btn-sm btn-error"
-                        title="Delete"
-                      >
-                        🗑️
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            {loading ? (
+              <div className="text-center py-10 font-medium text-gray-600">
+                Loading...
+              </div>
+            ) : filteredLayanan.length > 0 ? (
+              <>
+                <table className="table table-zebra w-full">
+                  <thead>
+                    <tr>
+                      <th>Number</th>
+                      <th>Name</th>
+                      <th>Status</th>
+                      <th>Updated By</th>
+                      <th>Updated At</th>
+                      <th>Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredLayanan.map((layanan, index) => (
+                      <tr key={layanan.id}>
+                        <td>{index + 1}</td>
+                        <td>{layanan.serviceName}</td>
+                        <td>{layanan.status ? "Aktif" : "Nonaktif"}</td>
+                        <td>{layanan.updatedBy}</td>
+                        <td>{formatDate(layanan.updatedAt)}</td>
+                        <td className="flex gap-2">
+                          <NavLink
+                            to={`/layanan/${layanan.id}`}
+                            className="btn btn-sm btn-info"
+                            title="View"
+                          >
+                            👁
+                          </NavLink>
+                          <NavLink
+                            to={`/layanan/edit-layanan/${layanan.id}`}
+                            className="btn btn-sm btn-warning"
+                            title="Edit"
+                          >
+                            ✏️
+                          </NavLink>
+                          <button
+                            onClick={() => confirmToggleStatus(layanan)}
+                            className={`btn btn-sm ${
+                              layanan.status ? "btn-error" : "btn-success"
+                            }`}
+                            title={layanan.status ? "Nonaktifkan" : "Aktifkan"}
+                            disabled={loadingId === layanan.id}
+                          >
+                            {loadingId === layanan.id
+                              ? "⏳"
+                              : layanan.status
+                              ? "🗑️"
+                              : "✅"}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
 
-            <div className="text-sm text-gray-500 mt-2">
-              Showing {filteredLayanan.length} out of {service.length} entries
-            </div>
+                <div className="text-sm text-gray-500 mt-2">
+                  Showing {filteredLayanan.length} out of {service.length}{" "}
+                  entries
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-6 text-gray-500">
+                Tidak ada layanan yang ditemukan.
+              </div>
+            )}
           </div>
         </div>
+
+        {showModal && selectedService && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+            <div className="bg-white p-6 rounded-lg shadow-md max-w-sm w-full">
+              <h3 className="text-lg font-semibold mb-4">Konfirmasi</h3>
+              <p>
+                Apakah kamu yakin ingin{" "}
+                <strong>
+                  {selectedService.status ? "menonaktifkan" : "mengaktifkan"}
+                </strong>{" "}
+                layanan <strong>{selectedService.serviceName}</strong>?
+              </p>
+              <div className="flex justify-end gap-4 mt-6">
+                <button
+                  onClick={() => {
+                    setShowModal(false);
+                    setSelectedService(null);
+                  }}
+                  className="btn btn-sm"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={handleNonactiveService}
+                  className={`btn btn-sm ${
+                    selectedService.status ? "btn-error" : "btn-success"
+                  }`}
+                >
+                  {selectedService.status ? "Nonaktifkan" : "Aktifkan"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </Layout>
   );

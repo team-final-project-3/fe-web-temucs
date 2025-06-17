@@ -9,6 +9,7 @@ const Libur = () => {
   const [search, setSearch] = useState("");
   const [selectedHoliday, setSelectedHoliday] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const getHoliday = async () => {
     try {
@@ -16,6 +17,8 @@ const Libur = () => {
       setHolidayData(response.data.holidays);
     } catch (error) {
       console.error("Gagal mengambil data libur:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -37,6 +40,7 @@ const Libur = () => {
       await api.delete(`/holiday/${selectedHoliday.id}`);
       setShowModal(false);
       setSelectedHoliday(null);
+      setLoading(true);
       getHoliday();
     } catch (error) {
       console.error("Gagal menghapus libur:", error);
@@ -66,48 +70,53 @@ const Libur = () => {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="table table-zebra w-full">
-              <thead>
-                <tr>
-                  <th>Number</th>
-                  <th>Name</th>
-                  <th>Date</th>
-                  <th>Updated At</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredHoliday.map((holiday, index) => (
-                  <tr key={holiday.id}>
-                    <td>{index + 1}</td>
-                    <td>{holiday.holidayName}</td>
-                    <td>{formatDate(holiday.date)}</td>
-                    <td>{formatDate(holiday.updatedAt)}</td>
-                    <td className="flex gap-2">
-                      <NavLink
-                        to={`/libur/edit-libur/${holiday.id}`}
-                        className="btn btn-sm btn-warning"
-                        title="Edit"
-                      >
-                        ✏️
-                      </NavLink>
-                      <button
-                        onClick={() => confirmDelete(holiday)}
-                        className="btn btn-sm btn-error"
-                        title="Delete"
-                      >
-                        🗑️
-                      </button>
-                    </td>
+            {loading ? (
+              <div className="text-center py-10 font-medium text-gray-600">
+                Loading...
+              </div>
+            ) : filteredHoliday.length > 0 ? (
+              <table className="table table-zebra w-full">
+                <thead>
+                  <tr>
+                    <th>Number</th>
+                    <th>Name</th>
+                    <th>Date</th>
+                    <th>Updated At</th>
+                    <th>Action</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-
-            <div className="text-sm text-gray-500 mt-2">
-              Showing {filteredHoliday.length} out of {holidayData.length}{" "}
-              entries
-            </div>
+                </thead>
+                <tbody>
+                  {filteredHoliday.map((holiday, index) => (
+                    <tr key={holiday.id}>
+                      <td>{index + 1}</td>
+                      <td>{holiday.holidayName}</td>
+                      <td>{formatDate(holiday.date)}</td>
+                      <td>{formatDate(holiday.updatedAt)}</td>
+                      <td className="flex gap-2">
+                        <NavLink
+                          to={`/libur/edit-libur/${holiday.id}`}
+                          className="btn btn-sm btn-warning"
+                          title="Edit"
+                        >
+                          ✏️
+                        </NavLink>
+                        <button
+                          onClick={() => confirmDelete(holiday)}
+                          className="btn btn-sm btn-error"
+                          title="Delete"
+                        >
+                          🗑️
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <div className="text-center py-6 text-gray-500">
+                Tidak ada hari libur yang ditemukan.
+              </div>
+            )}
           </div>
         </div>
 
@@ -117,7 +126,7 @@ const Libur = () => {
               <h3 className="text-lg font-semibold mb-4">Konfirmasi Hapus</h3>
               <p>
                 Apakah kamu yakin ingin menghapus libur{" "}
-                <strong>{selectedHoliday.name}</strong>?
+                <strong>{selectedHoliday.holidayName}</strong>?
               </p>
               <div className="flex justify-end gap-4 mt-6">
                 <button

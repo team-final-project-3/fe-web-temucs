@@ -1,3 +1,4 @@
 yg blm:
 - popup
 - tombol delete sebagai yg menonaktifkan cabang
+- get profile from decoded data(token)

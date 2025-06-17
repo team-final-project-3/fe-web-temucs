@@ -1,6 +1,4 @@
 import React from "react";
-import LogoTemuCS from "../../public/images/logo_temucs.png";
-import { IoExitOutline } from "react-icons/io5";
 const Navbar = () => {
   return (
     <div className="h-16 bg-white flex items-center px-4 py-4 shadow-md z-10">

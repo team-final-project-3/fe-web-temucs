@@ -9,18 +9,43 @@ import api from "../utils/api";
 
 const Dashboard = () => {
   const [cabang, setCabang] = useState([]);
+  const [antrian, setAntrian] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const getCabang = async () => {
     const response = await api.get("/branch");
-    console.log(response.data);
     setCabang(response.data.branches);
   };
 
+  const getAntrian = async () => {
+    const response = await api.get("/queue");
+    setAntrian(response.data.data);
+  };
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      await Promise.all([getCabang(), getAntrian()]);
+    } catch (error) {
+      console.error("Gagal mengambil data dashboard:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    getCabang();
+    fetchData();
   }, []);
 
-  console.log(cabang);
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center h-screen">
+          <p className="text-lg text-gray-600 font-medium">Loading...</p>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -38,7 +63,7 @@ const Dashboard = () => {
           <div className="divider lg:divider-horizontal"></div>
           <div className="card bg-[#FF7F08] rounded-box h-32 grow flex flex-row items-center justify-center gap-5">
             <User2Icon size={80} />
-            <h1 className="text-3xl font-bold">73</h1>
+            <h1 className="text-3xl font-bold">{antrian.length}</h1>
             <div className="flex flex-col text-xl">
               <p>Jumlah</p>
               <p>Antrian</p>

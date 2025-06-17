@@ -6,25 +6,52 @@ import api from "../utils/api";
 const AddCS = () => {
   const { id } = useParams();
   const numericId = parseInt(id, 10);
-  console.log(id);
+  const navigate = useNavigate();
 
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({});
 
-  const navigate = useNavigate();
+  const hasNoSpaces = (value) => /^\S+$/.test(value);
 
   const handleAddCS = async () => {
-    const response = await api.post("/cs/add", {
-      branchId: numericId,
-      name,
-      username,
-      password,
-      createdBy: localStorage.getItem("username"),
-    });
+    const newErrors = {};
 
-    navigate(`/cabang/${numericId}`);
-    console.log(response.data);
+    if (!name.trim()) newErrors.name = "Field ini harus diisi";
+
+    if (!username.trim()) {
+      newErrors.username = "Field ini harus diisi";
+    } else if (!hasNoSpaces(username)) {
+      newErrors.username = "Tidak boleh mengandung spasi";
+    }
+
+    if (!password.trim()) {
+      newErrors.password = "Field ini harus diisi";
+    } else if (!hasNoSpaces(password)) {
+      newErrors.password = "Tidak boleh mengandung spasi";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    try {
+      const payload = {
+        branchId: numericId,
+        name: name.trimEnd().replace(/\s{2,}/g, " "),
+        username,
+        password,
+        createdBy: localStorage.getItem("username"),
+      };
+
+      const response = await api.post("/cs/add", payload);
+      navigate(`/cabang/${numericId}`);
+      console.log(response.data);
+    } catch (error) {
+      console.error("Gagal menambahkan CS:", error);
+    }
   };
 
   return (
@@ -37,27 +64,60 @@ const AddCS = () => {
             <label className="label">Nama</label>
             <input
               type="text"
-              className="input w-full"
+              className={`input w-full ${errors.name ? "border-red-500" : ""}`}
               placeholder="Nama"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                const value = e.target.value
+                  .replace(/^\s+/, "")
+                  .replace(/\s{2,}/g, " ");
+                setName(value);
+                setErrors((prev) => ({ ...prev, name: "" }));
+              }}
             />
-            <label className="label">Username</label>
+            {errors.name && (
+              <span className="text-sm text-red-500">{errors.name}</span>
+            )}
+
+            <label className="label mt-4">Username</label>
             <input
               type="text"
-              className="input w-full"
+              className={`input w-full ${
+                errors.username ? "border-red-500" : ""
+              }`}
               placeholder="Username"
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => {
+                setUsername(e.target.value);
+                setErrors((prev) => ({ ...prev, username: "" }));
+              }}
+              onKeyDown={(e) => {
+                if (e.key === " ") e.preventDefault();
+              }}
             />
-            <label className="label">Password</label>
+            {errors.username && (
+              <span className="text-sm text-red-500">{errors.username}</span>
+            )}
+
+            <label className="label mt-4">Password</label>
             <input
               type="password"
-              className="input w-full"
+              className={`input w-full ${
+                errors.password ? "border-red-500" : ""
+              }`}
               placeholder="Password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                setErrors((prev) => ({ ...prev, password: "" }));
+              }}
+              onKeyDown={(e) => {
+                if (e.key === " ") e.preventDefault();
+              }}
             />
+            {errors.password && (
+              <span className="text-sm text-red-500">{errors.password}</span>
+            )}
 
             <div className="flex justify-center gap-5">
               <NavLink
