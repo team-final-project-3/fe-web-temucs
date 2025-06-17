@@ -18,16 +18,16 @@ const AddCS = () => {
   const handleAddCS = async () => {
     const newErrors = {};
 
-    if (!name.trim()) newErrors.name = "Field ini harus diisi";
+    if (!name.trim()) newErrors.name = "Field Nama harus diisi";
 
     if (!username.trim()) {
-      newErrors.username = "Field ini harus diisi";
+      newErrors.username = "Field Username harus diisi";
     } else if (!hasNoSpaces(username)) {
       newErrors.username = "Tidak boleh mengandung spasi";
     }
 
     if (!password.trim()) {
-      newErrors.password = "Field ini harus diisi";
+      newErrors.password = "Field Password harus diisi";
     } else if (!hasNoSpaces(password)) {
       newErrors.password = "Tidak boleh mengandung spasi";
     }

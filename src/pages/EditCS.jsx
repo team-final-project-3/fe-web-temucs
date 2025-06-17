@@ -37,10 +37,10 @@ const EditCS = () => {
   const handleEditCS = async () => {
     const newErrors = {};
 
-    if (!name.trim()) newErrors.name = "Field ini harus diisi";
+    if (!name.trim()) newErrors.name = "Field Name harus diisi";
 
     if (!username.trim()) {
-      newErrors.username = "Field ini harus diisi";
+      newErrors.username = "Field Username harus diisi";
     } else if (!hasNoSpaces(username)) {
       newErrors.username = "Tidak boleh mengandung spasi";
     }
@@ -76,7 +76,7 @@ const EditCS = () => {
         <h2 className="text-2xl font-semibold my-3">EDIT CS</h2>
 
         <div className="bg-base-100 rounded-lg shadow p-4 border-2 border-gray-300">
-          <fieldset className="fieldset rounded-box p-4 space-y-3">
+          <fieldset className="fieldset rounded-box p-4">
             <label className="label">Nama</label>
             <input
               type="text"
