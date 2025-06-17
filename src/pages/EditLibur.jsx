@@ -11,23 +11,26 @@ const EditLibur = () => {
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
 
+  const fetchHolidayById = async () => {
+    try {
+      const res = await api.get(`/holiday/${id}`);
+      console.log(res.data);
+
+      const { holidayName, date } = res.data.holiday;
+
+      setName(holidayName);
+      setDate(date);
+
+      const button = document.getElementById("cally1");
+      if (button) button.innerText = date;
+    } catch (error) {
+      console.error("Gagal mengambil data libur:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchHoliday = async () => {
-      try {
-        const res = await api.get(`/holiday/${id}`);
-        const { holidayName, date } = res.data.data;
-        setName(holidayName);
-        setDate(date);
-
-        const button = document.getElementById("cally1");
-        if (button) button.innerText = date;
-      } catch (error) {
-        console.error("Gagal mengambil data libur:", error);
-      }
-    };
-
-    fetchHoliday();
-  }, [id]);
+    fetchHolidayById();
+  }, []);
 
   useEffect(() => {
     const calendar = document.querySelector("calendar-date");
