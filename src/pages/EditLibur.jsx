@@ -1,18 +1,61 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
+import { useParams, useNavigate } from "react-router-dom";
+import api from "../utils/api";
 import "cally";
 
 const EditLibur = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
+  const [name, setName] = useState("");
+  const [date, setDate] = useState("");
+
+  useEffect(() => {
+    const fetchHoliday = async () => {
+      try {
+        const res = await api.get(`/holiday/${id}`);
+        const { holidayName, date } = res.data.data;
+        setName(holidayName);
+        setDate(date);
+
+        const button = document.getElementById("cally1");
+        if (button) button.innerText = date;
+      } catch (error) {
+        console.error("Gagal mengambil data libur:", error);
+      }
+    };
+
+    fetchHoliday();
+  }, [id]);
+
   useEffect(() => {
     const calendar = document.querySelector("calendar-date");
     const button = document.getElementById("cally1");
 
     if (calendar && button) {
       calendar.onchange = function () {
-        button.innerText = this.value;
+        const val = this.value;
+        setDate(val);
+        button.innerText = val;
       };
     }
   }, []);
+
+  const handleUpdateHoliday = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await api.put(`/holiday/${id}`, {
+        holidayName: name,
+        date,
+        updatedBy: "admin",
+      });
+      console.log("Berhasil update:", response.data);
+      navigate("/libur");
+    } catch (error) {
+      console.error("Gagal update:", error);
+    }
+  };
 
   return (
     <Layout>
@@ -26,6 +69,8 @@ const EditLibur = () => {
               type="text"
               className="input w-full"
               placeholder="Nama Libur"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
             />
 
             <label className="label mt-4">Tanggal Hari Libur</label>
@@ -35,7 +80,7 @@ const EditLibur = () => {
               id="cally1"
               style={{ anchorName: "--cally1" }}
             >
-              Pilih Tanggal Libur
+              {date || "Pilih Tanggal Libur"}
             </button>
 
             <div
@@ -68,10 +113,16 @@ const EditLibur = () => {
             </div>
 
             <div className="flex justify-center gap-5">
-              <button className="btn bg-white border-orange-500 mt-6 text-orange-300 font-semibold">
+              <button
+                className="btn bg-white border-orange-500 mt-6 text-orange-300 font-semibold"
+                onClick={() => navigate("/libur")}
+              >
                 Batalkan
               </button>
-              <button className="btn bg-orange-500 mt-6 text-white font-semibold">
+              <button
+                className="btn bg-orange-500 mt-6 text-white font-semibold"
+                onClick={handleUpdateHoliday}
+              >
                 Simpan
               </button>
             </div>
