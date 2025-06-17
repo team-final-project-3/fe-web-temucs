@@ -14,15 +14,15 @@ const EditLibur = () => {
   const fetchHolidayById = async () => {
     try {
       const res = await api.get(`/holiday/${id}`);
-      console.log(res.data);
+      console.log("Response holiday by ID:", res.data);
 
       const { holidayName, date } = res.data.holiday;
 
-      setName(holidayName);
-      setDate(date);
+      setName(holidayName || "");
+      setDate(date ? date.slice(0, 10) : "");
 
       const button = document.getElementById("cally1");
-      if (button) button.innerText = date;
+      if (button) button.innerText = date.slice(0, 10);
     } catch (error) {
       console.error("Gagal mengambil data libur:", error);
     }
