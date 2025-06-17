@@ -8,6 +8,7 @@ const EditLayanan = () => {
   const [estimateTime, setEstimateTime] = useState("");
   const [documents, setDocuments] = useState([]);
   const [selectedDocuments, setSelectedDocuments] = useState([]);
+  const [errors, setErrors] = useState({});
 
   const navigate = useNavigate();
   const { id } = useParams();
@@ -26,7 +27,7 @@ const EditLayanan = () => {
       const response = await api.get(`/service/${id}`);
       const data = response.data;
       setServiceName(data.serviceName);
-      setEstimateTime(data.estimatedTime);
+      setEstimateTime(data.estimatedTime.toString());
       setSelectedDocuments(data.documents.map((doc) => doc.id));
     } catch (error) {
       console.error("Gagal mengambil detail layanan:", error);
@@ -45,8 +46,26 @@ const EditLayanan = () => {
   };
 
   const handleSubmit = async () => {
+    const newErrors = {};
+
+    if (!serviceName.trim()) newErrors.serviceName = "Nama layanan wajib diisi";
+    if (!estimateTime.trim()) {
+      newErrors.estimateTime = "Estimasi waktu wajib diisi";
+    } else if (isNaN(estimateTime) || parseInt(estimateTime) <= 0) {
+      newErrors.estimateTime = "Estimasi waktu harus berupa angka positif";
+    }
+
+    if (selectedDocuments.length === 0) {
+      newErrors.documents = "Pilih minimal satu dokumen";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     const payload = {
-      serviceName,
+      serviceName: serviceName.trim(),
       estimatedTime: parseInt(estimateTime),
       documentIds: selectedDocuments,
       updatedBy: "admin",
@@ -71,22 +90,38 @@ const EditLayanan = () => {
             <label className="label">Nama Layanan</label>
             <input
               type="text"
-              className="input w-full mb-4"
+              className={`input w-full mb-1 ${
+                errors.serviceName ? "border-red-500" : ""
+              }`}
               placeholder="Nama Layanan"
               value={serviceName}
-              onChange={(e) => setServiceName(e.target.value)}
+              onChange={(e) => {
+                setServiceName(e.target.value);
+                setErrors((prev) => ({ ...prev, serviceName: "" }));
+              }}
             />
+            {errors.serviceName && (
+              <p className="text-red-500 text-sm">{errors.serviceName}</p>
+            )}
 
-            <label className="label">Estimasi Waktu (menit)</label>
+            <label className="label mt-4">Estimasi Waktu (menit)</label>
             <input
               type="number"
-              className="input w-full mb-4"
+              className={`input w-full mb-1 ${
+                errors.estimateTime ? "border-red-500" : ""
+              }`}
               placeholder="Contoh: 15"
               value={estimateTime}
-              onChange={(e) => setEstimateTime(e.target.value)}
+              onChange={(e) => {
+                setEstimateTime(e.target.value);
+                setErrors((prev) => ({ ...prev, estimateTime: "" }));
+              }}
             />
+            {errors.estimateTime && (
+              <p className="text-red-500 text-sm">{errors.estimateTime}</p>
+            )}
 
-            <div className="mb-4">
+            <div className="mb-4 mt-4">
               <label className="label mb-2">Dokumen Terkait</label>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                 {documents.map((doc) => (
@@ -101,6 +136,9 @@ const EditLayanan = () => {
                   </label>
                 ))}
               </div>
+              {errors.documents && (
+                <p className="text-red-500 text-sm mt-1">{errors.documents}</p>
+              )}
             </div>
 
             <div className="flex justify-center gap-5">
