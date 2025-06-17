@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 const AddLibur = () => {
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
+  const [errors, setErrors] = useState({});
 
   const navigate = useNavigate();
 
@@ -19,26 +20,35 @@ const AddLibur = () => {
         const val = this.value;
         setDate(val);
         button.innerText = this.value;
+        setErrors((prev) => ({ ...prev, date: "" }));
       };
     }
   }, []);
 
   const handleAddHoliday = async (e) => {
     e.preventDefault();
+    const newErrors = {};
+
+    if (!name.trim()) newErrors.name = "Nama hari libur harus diisi";
+    if (!date) newErrors.date = "Tanggal hari libur harus dipilih";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
     try {
-      const response = await api.post("/holiday", {
-        holidayName: name,
+      await api.post("/holiday", {
+        holidayName: name.trim(),
         date,
         createdBy: "admin",
         updatedBy: "admin",
       });
-      console.log(response.data);
       navigate("/libur");
     } catch (error) {
-      console.error(error);
+      console.error("Gagal menambahkan hari libur:", error);
+      alert("Terjadi kesalahan saat menyimpan hari libur.");
     }
-    console.log(name);
-    console.log(date);
   };
 
   return (
@@ -51,21 +61,32 @@ const AddLibur = () => {
             <label className="label">Nama Hari Libur</label>
             <input
               type="text"
-              className="input w-full"
+              className={`input w-full ${errors.name ? "border-red-500" : ""}`}
               placeholder="Nama Libur"
               value={name}
-              onChange={(e) => setName(e.target.value)}
+              onChange={(e) => {
+                setName(e.target.value);
+                setErrors((prev) => ({ ...prev, name: "" }));
+              }}
             />
+            {errors.name && (
+              <span className="text-sm text-red-500">{errors.name}</span>
+            )}
 
             <label className="label mt-4">Tanggal Hari Libur</label>
             <button
               popoverTarget="cally-popover1"
-              className="input input-bordered cursor-pointer w-full"
+              className={`input input-bordered cursor-pointer w-full text-left ${
+                errors.date ? "border-red-500" : ""
+              }`}
               id="cally1"
               style={{ anchorName: "--cally1" }}
             >
-              Pilih Tanggal Libur
+              {date || "Pilih Tanggal Libur"}
             </button>
+            {errors.date && (
+              <span className="text-sm text-red-500">{errors.date}</span>
+            )}
 
             <div
               popover="manual"
@@ -97,7 +118,17 @@ const AddLibur = () => {
             </div>
 
             <div className="flex justify-center gap-5">
-              <button className="btn bg-white border-orange-500 mt-6 text-orange-300 font-semibold">
+              <button
+                type="button"
+                className="btn bg-white border-orange-500 mt-6 text-orange-300 font-semibold"
+                onClick={() => {
+                  setName("");
+                  setDate("");
+                  setErrors({});
+                  document.getElementById("cally1").innerText =
+                    "Pilih Tanggal Libur";
+                }}
+              >
                 Batalkan
               </button>
               <button
