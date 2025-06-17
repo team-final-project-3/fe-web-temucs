@@ -1,48 +1,42 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
-
-const dummyData = {
-  online: [
-    {
-      id: 1,
-      name: "Asep Kadal",
-      email: "a*****@g***.com",
-      phone: "08******19",
-      role: "Nasabah",
-    },
-    {
-      id: 2,
-      name: "Oka Chan",
-      email: "o*****@g***.com",
-      phone: "08******29",
-      role: "Nasabah",
-    },
-  ],
-  offline: [
-    {
-      id: 3,
-      name: "Via Peke P",
-      email: "v*****@g***.com",
-      phone: "08******89",
-      role: "Nasabah",
-    },
-    {
-      id: 4,
-      name: "Juicy Json",
-      email: "j*****@g***.com",
-      phone: "08******81",
-      role: "Admin",
-    },
-  ],
-};
+import api from "../utils/api";
 
 const Nasabah = () => {
   const [activeTab, setActiveTab] = useState("online");
   const [search, setSearch] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [nasabahData, setNasabahData] = useState({
+    online: [],
+    offline: [],
+  });
 
-  const filteredData = dummyData[activeTab].filter((item) =>
-    item.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const getAllNasabah = async () => {
+    try {
+      const response = await api.get("/queue");
+      const allNasabah = response.data.data;
+
+      console.log(response.data);
+
+      const online = allNasabah.filter((item) => item.loketId === null);
+      const offline = allNasabah.filter((item) => item.loketId !== null);
+
+      setNasabahData({ online, offline });
+    } catch (error) {
+      console.error("Gagal mengambil data nasabah:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getAllNasabah();
+  }, []);
+
+  const filteredData =
+    nasabahData[activeTab]?.filter((item) =>
+      (item.name || "").toLowerCase().includes(search.toLowerCase())
+    ) || [];
 
   return (
     <Layout>
@@ -50,7 +44,7 @@ const Nasabah = () => {
         <h2 className="text-2xl font-semibold my-3">LIHAT NASABAH</h2>
 
         <div className="p-4 bg-white rounded-lg shadow">
-          <div className="flex justify-between">
+          <div className="flex justify-between items-center flex-wrap gap-2">
             <div role="tablist" className="tabs tabs-lift mb-4">
               <button
                 role="tab"
@@ -93,38 +87,45 @@ const Nasabah = () => {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <div className="overflow-x-auto">
-            <table className="table w-full">
-              <thead>
-                <tr>
-                  <th>No</th>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>No HP</th>
-                  <th>Role</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredData.length > 0 ? (
-                  filteredData.map((item, index) => (
-                    <tr key={item.id}>
-                      <td>{index + 1}</td>
-                      <td>{item.name}</td>
-                      <td>{item.email}</td>
-                      <td>{item.phone}</td>
-                      <td>{item.role}</td>
-                    </tr>
-                  ))
-                ) : (
+
+          {loading ? (
+            <div className="text-center py-10 font-medium text-gray-600">
+              Loading...
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="table w-full">
+                <thead>
                   <tr>
-                    <td colSpan="5" className="text-center text-gray-400">
-                      No data found.
-                    </td>
+                    <th>No</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>No HP</th>
+                    <th>Cabang</th>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {filteredData.length > 0 ? (
+                    filteredData.map((item, index) => (
+                      <tr key={item.id}>
+                        <td>{index + 1}</td>
+                        <td>{item.name}</td>
+                        <td>{item.user.email}</td>
+                        <td>{item.user.phoneNumber}</td>
+                        <td>{item.branch.name}</td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan="5" className="text-center text-gray-400">
+                        Tidak ada data nasabah ditemukan.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
     </Layout>

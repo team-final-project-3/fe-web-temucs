@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import api from "../utils/api";
 import { NavLink, useNavigate, useParams } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 const EditDokumen = () => {
   const [document, setDocument] = useState("");
@@ -9,12 +10,14 @@ const EditDokumen = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  const data = jwtDecode(localStorage.getItem("token"));
+  console.log(data);
+
   useEffect(() => {
-    // Ambil data dokumen berdasarkan ID
     const fetchDocument = async () => {
       try {
         const response = await api.get(`/document/${id}`);
-        setDocument(response.data.documentName || ""); // asumsi field bernama documentName
+        setDocument(response.data.documentName || "");
       } catch (error) {
         console.error("Gagal mengambil data dokumen:", error);
       }
@@ -34,14 +37,13 @@ const EditDokumen = () => {
     setLoading(true);
 
     try {
-      // Ambil semua dokumen
       const allDocs = await api.get("/document");
 
       const isDuplicate = allDocs.data.find(
         (doc) =>
           doc.documentName &&
           doc.documentName.toLowerCase() === document.trim().toLowerCase() &&
-          doc.id.toString() !== id // pastikan bukan dokumen ini sendiri
+          doc.id.toString() !== id
       );
 
       if (isDuplicate) {
@@ -50,10 +52,9 @@ const EditDokumen = () => {
         return;
       }
 
-      // Lanjut update
       const updateResponse = await api.put(`/document/${id}`, {
         documentName: document.trim(),
-        updatedBy: localStorage.getItem("username") || "Unknown",
+        updatedBy: data.username || "Unknown",
         updatedAt: new Date().toISOString(),
       });
 

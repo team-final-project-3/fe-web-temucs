@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import logoTEMPORARY from "../../public/images/logoTEMPORARY.png";
+import temuCSLong from "../../public/images/temuCS_long.png";
 import { ChevronFirst, ChevronLast, LogOut } from "lucide-react";
 import SidebarContext from "./SidebarContext";
 import ProfileAdmin from "../../public/images/profile_admin.jpg";
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 const Sidebar = ({ children }) => {
   const [expanded, setExpanded] = useState(true);
@@ -15,6 +16,9 @@ const Sidebar = ({ children }) => {
     navigate("/");
   };
 
+  const data = jwtDecode(localStorage.getItem("token"));
+  console.log(data);
+
   return (
     <>
       <aside className="h-screen bg-[#3D474B]">
@@ -25,10 +29,10 @@ const Sidebar = ({ children }) => {
             } h-16`}
           >
             <img
-              src={logoTEMPORARY}
+              src={temuCSLong}
               alt="logo"
               className={`transition-all overflow-hidden ${
-                expanded ? "w-30 h-10 p-2 ml-1" : "w-0 h-0"
+                expanded ? "w-35 h-20 p-2 ml-1" : "w-0 h-0"
               }`}
             />
             <button
@@ -59,8 +63,8 @@ const Sidebar = ({ children }) => {
               }`}
             >
               <div className="leading-4 text-white">
-                <h4 className="font-semibold">John Doe</h4>
-                <span className="text-xs text-white/40">johndoe@gmail.com</span>
+                <h4 className="font-semibold">{data.fullname}</h4>
+                <span className="text-xs text-white/40">{data.email}</span>
               </div>
               <div
                 className="bg-white px-1 py-2 rounded-md cursor-pointer"

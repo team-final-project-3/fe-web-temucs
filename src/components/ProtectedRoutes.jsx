@@ -13,10 +13,6 @@ const ProtectedRoutes = ({ children }) => {
     const data = jwtDecode(token);
     const role = data.role;
 
-    if (role == "cs") {
-      return <Navigate to="/" replace />;
-    }
-
     if (role !== "admin") {
       return <Navigate to="/" replace />;
     }
