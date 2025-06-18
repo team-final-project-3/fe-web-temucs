@@ -72,7 +72,9 @@ const EditCabang = () => {
       navigate("/cabang");
     } catch (error) {
       console.error("Gagal memperbarui cabang:", error);
-      alert("Terjadi kesalahan saat memperbarui cabang.");
+      const errorMessage =
+        error.response?.data?.message || error.message || "Terjadi kesalahan";
+      setErrors((prev) => ({ ...prev, backend: errorMessage }));
     }
   };
 
@@ -159,6 +161,12 @@ const EditCabang = () => {
             />
             {errors.latitude && (
               <p className="text-red-500 text-sm">{errors.latitude}</p>
+            )}
+
+            {errors.backend && (
+              <div className="text-center text-red-600 font-medium mt-4">
+                {errors.backend}
+              </div>
             )}
 
             <div className="flex justify-center gap-5">

@@ -20,7 +20,7 @@ const Login = () => {
     try {
       const response = await api.post("/users/login", { username, password });
       const data = jwtDecode(response.data.token);
-      console.log(data);
+      console.log(response.data);
 
       localStorage.setItem("token", response.data.token);
       navigate("/dashboard");

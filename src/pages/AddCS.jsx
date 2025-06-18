@@ -51,6 +51,9 @@ const AddCS = () => {
       console.log(response.data);
     } catch (error) {
       console.error("Gagal menambahkan CS:", error);
+      const errorMessage =
+        error.response?.data?.message || error.message || "Terjadi kesalahan";
+      setErrors((prev) => ({ ...prev, backend: errorMessage }));
     }
   };
 
@@ -119,6 +122,11 @@ const AddCS = () => {
               <span className="text-sm text-red-500">{errors.password}</span>
             )}
 
+            {errors.backend && (
+              <div className="text-center text-red-600 font-medium mt-4">
+                {errors.backend}
+              </div>
+            )}
             <div className="flex justify-center gap-5">
               <NavLink
                 to={`/cabang/${numericId}`}

@@ -18,7 +18,7 @@ const AddLayanan = () => {
         const response = await api.get("/document");
         setDocuments(response.data);
       } catch (error) {
-        console.error("Gagal mengambil dokumen:", error);
+        console.error("Gagal mengambil dokumen:", error.message);
       }
     };
 
@@ -67,7 +67,9 @@ const AddLayanan = () => {
       navigate("/layanan");
     } catch (error) {
       console.error("Gagal menambahkan layanan:", error);
-      alert("Terjadi kesalahan saat menambahkan layanan.");
+      const errorMessage =
+        error.response?.data?.message || error.message || "Terjadi kesalahan";
+      setErrors((prev) => ({ ...prev, backend: errorMessage }));
     }
   };
 
@@ -91,6 +93,7 @@ const AddLayanan = () => {
                 setErrors((prev) => ({ ...prev, serviceName: "" }));
               }}
             />
+
             {errors.serviceName && (
               <span className="text-sm text-red-500">{errors.serviceName}</span>
             )}
@@ -108,6 +111,7 @@ const AddLayanan = () => {
                 setErrors((prev) => ({ ...prev, estimateTime: "" }));
               }}
             />
+
             {errors.estimateTime && (
               <span className="text-sm text-red-500">
                 {errors.estimateTime}
@@ -129,12 +133,19 @@ const AddLayanan = () => {
                   </label>
                 ))}
               </div>
+
               {errors.selectedDocuments && (
                 <span className="text-sm text-red-500">
                   {errors.selectedDocuments}
                 </span>
               )}
             </div>
+
+            {errors.backend && (
+              <div className="text-center text-red-600 font-medium mt-4">
+                {errors.backend}
+              </div>
+            )}
 
             <div className="flex justify-center gap-5">
               <button

@@ -6,13 +6,24 @@ import { NavLink, useNavigate } from "react-router-dom";
 const AddDokumen = () => {
   const [document, setDocument] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
+
   const navigate = useNavigate();
+
+  const normalizeDocumentName = (name) => name.trim().replace(/\s{2,}/g, " ");
 
   const handleAddDocument = async (e) => {
     e.preventDefault();
 
-    if (!document.trim()) {
-      alert("Nama dokumen tidak boleh kosong.");
+    const newErrors = {};
+    const cleanedDocument = normalizeDocumentName(document);
+
+    if (!cleanedDocument) {
+      newErrors.documentName = "Field Nama Dokumen harus diisi";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
@@ -24,17 +35,18 @@ const AddDokumen = () => {
       const existing = response.data.find(
         (doc) =>
           doc.documentName &&
-          doc.documentName.toLowerCase() === document.trim().toLowerCase()
+          doc.documentName.toLowerCase() === cleanedDocument.toLowerCase()
       );
 
       if (existing) {
-        alert("Dokumen dengan nama tersebut sudah ada.");
+        newErrors.documentName = "Nama Dokumen sudah ada";
+        setErrors(newErrors);
         setLoading(false);
         return;
       }
 
       const addResponse = await api.post("/document", {
-        documentName: document.trim(),
+        documentName: cleanedDocument,
         date: Date.now(),
         createdBy: localStorage.getItem("username") || "Unknown",
         updatedBy: localStorage.getItem("username") || "Unknown",
@@ -44,7 +56,9 @@ const AddDokumen = () => {
       navigate("/dokumen");
     } catch (error) {
       console.error("Gagal menambahkan dokumen:", error);
-      alert("Terjadi kesalahan. Coba lagi.");
+      const errorMessage =
+        error.response?.data?.message || error.message || "Terjadi kesalahan";
+      setErrors((prev) => ({ ...prev, backend: errorMessage }));
     } finally {
       setLoading(false);
     }
@@ -60,11 +74,28 @@ const AddDokumen = () => {
             <label className="label">Nama Dokumen</label>
             <input
               type="text"
-              className="input w-full"
+              className={`input w-full ${
+                errors.documentName ? "border-red-500" : ""
+              }`}
               placeholder="Nama Dokumen"
               value={document}
-              onChange={(e) => setDocument(e.target.value)}
+              onChange={(e) => {
+                setDocument(e.target.value.replace(/^\s+/, "")); // Hapus spasi di awal
+                setErrors((prev) => ({ ...prev, documentName: "" }));
+              }}
+              onBlur={(e) => setDocument(normalizeDocumentName(e.target.value))}
             />
+            {errors.documentName && (
+              <span className="text-sm text-red-500">
+                {errors.documentName}
+              </span>
+            )}
+
+            {errors.backend && (
+              <div className="text-center text-red-600 font-medium mt-4">
+                {errors.backend}
+              </div>
+            )}
 
             <div className="flex justify-center gap-5">
               <NavLink
