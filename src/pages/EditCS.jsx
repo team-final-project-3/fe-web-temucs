@@ -65,8 +65,11 @@ const EditCS = () => {
 
       await api.put(`/cs/${csId}`, payload);
       navigate(`/cabang/${branchId}`);
-    } catch (err) {
-      console.error("Gagal update cs:", err);
+    } catch (error) {
+      console.error("Gagal update cs:", error);
+      const errorMessage =
+        error.response?.data?.message || error.message || "Terjadi kesalahan";
+      setErrors((prev) => ({ ...prev, backend: errorMessage }));
     }
   };
 
@@ -111,6 +114,7 @@ const EditCS = () => {
                 if (e.key === " ") e.preventDefault();
               }}
             />
+
             {errors.username && (
               <span className="text-sm text-red-500">{errors.username}</span>
             )}
@@ -133,6 +137,12 @@ const EditCS = () => {
             />
             {errors.password && (
               <span className="text-sm text-red-500">{errors.password}</span>
+            )}
+
+            {errors.backend && (
+              <div className="text-center text-red-600 font-medium mt-4">
+                {errors.backend}
+              </div>
             )}
 
             <div className="flex justify-center gap-5 pt-4">

@@ -55,7 +55,7 @@ function App() {
           }
         />
         <Route
-          path="/cabang/edit/:id"
+          path="/cabang/edit-cabang/:id"
           element={
             <ProtectedRoutes>
               <EditCabang />

@@ -76,7 +76,9 @@ const EditLayanan = () => {
       navigate("/layanan");
     } catch (error) {
       console.error("Gagal mengupdate layanan:", error);
-      alert("Terjadi kesalahan saat mengupdate layanan.");
+      const errorMessage =
+        error.response?.data?.message || error.message || "Terjadi kesalahan";
+      setErrors((prev) => ({ ...prev, backend: errorMessage }));
     }
   };
 
@@ -140,6 +142,12 @@ const EditLayanan = () => {
                 <p className="text-red-500 text-sm mt-1">{errors.documents}</p>
               )}
             </div>
+
+            {errors.backend && (
+              <div className="text-center text-red-600 font-medium mt-4">
+                {errors.backend}
+              </div>
+            )}
 
             <div className="flex justify-center gap-5">
               <button

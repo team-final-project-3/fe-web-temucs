@@ -67,7 +67,9 @@ const EditLibur = () => {
       navigate("/libur");
     } catch (error) {
       console.error("Gagal update:", error);
-      alert("Terjadi kesalahan saat mengupdate data libur.");
+      const errorMessage =
+        error.response?.data?.message || error.message || "Terjadi kesalahan";
+      setErrors((prev) => ({ ...prev, backend: errorMessage }));
     }
   };
 

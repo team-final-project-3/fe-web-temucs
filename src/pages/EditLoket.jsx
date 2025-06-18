@@ -67,8 +67,11 @@ const EditLoket = () => {
 
       await api.put(`/loket/${loketId}`, payload);
       navigate(`/cabang/${branchId}`);
-    } catch (err) {
-      console.error("Gagal update loket:", err);
+    } catch (error) {
+      console.error("Gagal update loket:", error);
+      const errorMessage =
+        error.response?.data?.message || error.message || "Terjadi kesalahan";
+      setErrors((prev) => ({ ...prev, backend: errorMessage }));
     }
   };
 
@@ -135,6 +138,12 @@ const EditLoket = () => {
             />
             {errors.password && (
               <span className="text-sm text-red-500">{errors.password}</span>
+            )}
+
+            {errors.backend && (
+              <div className="text-center text-red-600 font-medium mt-4">
+                {errors.backend}
+              </div>
             )}
 
             <div className="flex justify-center gap-5 pt-4">

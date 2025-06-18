@@ -57,10 +57,16 @@ const AddCabang = () => {
         createdBy: localStorage.getItem("username"),
         updatedBy: localStorage.getItem("username"),
       };
+
       const response = await api.post("/branch", dataCabang);
+      console.log(response.data);
+
       navigate("/cabang");
     } catch (error) {
       console.error("Gagal menambahkan cabang:", error);
+      const errorMessage =
+        error.response?.data?.message || error.message || "Terjadi kesalahan";
+      setErrors((prev) => ({ ...prev, backend: errorMessage }));
     }
   };
 
@@ -153,6 +159,12 @@ const AddCabang = () => {
             />
             {errors.longitude && (
               <span className="text-sm text-red-500">{errors.longitude}</span>
+            )}
+
+            {errors.backend && (
+              <div className="text-center text-red-600 font-medium mt-4">
+                {errors.backend}
+              </div>
             )}
 
             <div className="flex justify-center gap-5">

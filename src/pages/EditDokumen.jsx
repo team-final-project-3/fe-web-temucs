@@ -7,11 +7,11 @@ import { jwtDecode } from "jwt-decode";
 const EditDokumen = () => {
   const [document, setDocument] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState({});
   const { id } = useParams();
   const navigate = useNavigate();
 
   const data = jwtDecode(localStorage.getItem("token"));
-  console.log(data);
 
   useEffect(() => {
     const fetchDocument = async () => {
@@ -20,6 +20,10 @@ const EditDokumen = () => {
         setDocument(response.data.documentName || "");
       } catch (error) {
         console.error("Gagal mengambil data dokumen:", error);
+        setErrors((prev) => ({
+          ...prev,
+          backend: "Gagal mengambil data dokumen.",
+        }));
       }
     };
 
@@ -28,9 +32,14 @@ const EditDokumen = () => {
 
   const handleEditDocument = async (e) => {
     e.preventDefault();
+    const newErrors = {};
 
     if (!document.trim()) {
-      alert("Nama dokumen tidak boleh kosong.");
+      newErrors.documentName = "Nama dokumen tidak boleh kosong.";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
 
@@ -47,7 +56,9 @@ const EditDokumen = () => {
       );
 
       if (isDuplicate) {
-        alert("Nama dokumen sudah digunakan oleh dokumen lain.");
+        newErrors.documentName =
+          "Nama dokumen sudah digunakan oleh dokumen lain.";
+        setErrors(newErrors);
         setLoading(false);
         return;
       }
@@ -62,7 +73,9 @@ const EditDokumen = () => {
       navigate("/dokumen");
     } catch (error) {
       console.error("Gagal memperbarui dokumen:", error);
-      alert("Terjadi kesalahan. Coba lagi.");
+      const errorMessage =
+        error.response?.data?.message || error.message || "Terjadi kesalahan.";
+      setErrors((prev) => ({ ...prev, backend: errorMessage }));
     } finally {
       setLoading(false);
     }
@@ -81,8 +94,23 @@ const EditDokumen = () => {
               className="input w-full"
               placeholder="Nama Dokumen"
               value={document}
-              onChange={(e) => setDocument(e.target.value)}
+              onChange={(e) => {
+                setDocument(e.target.value);
+                setErrors((prev) => ({ ...prev, documentName: "" }));
+              }}
             />
+
+            {errors.documentName && (
+              <span className="text-sm text-red-500">
+                {errors.documentName}
+              </span>
+            )}
+
+            {errors.backend && (
+              <div className="text-center text-red-600 font-medium mt-4">
+                {errors.backend}
+              </div>
+            )}
 
             <div className="flex justify-center gap-5">
               <NavLink

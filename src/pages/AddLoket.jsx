@@ -51,6 +51,9 @@ const AddLoket = () => {
       console.log(response.data);
     } catch (error) {
       console.error("Gagal menambahkan loket:", error);
+      const errorMessage =
+        error.response?.data?.message || error.message || "Terjadi kesalahan";
+      setErrors((prev) => ({ ...prev, backend: errorMessage }));
     }
   };
 
@@ -117,6 +120,12 @@ const AddLoket = () => {
             />
             {errors.password && (
               <span className="text-sm text-red-500">{errors.password}</span>
+            )}
+
+            {errors.backend && (
+              <div className="text-center text-red-600 font-medium mt-4">
+                {errors.backend}
+              </div>
             )}
 
             <div className="flex justify-center gap-5">

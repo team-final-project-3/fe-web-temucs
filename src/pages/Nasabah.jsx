@@ -11,6 +11,15 @@ const Nasabah = () => {
     offline: [],
   });
 
+  const ambilNasabah = async () => {
+    try {
+      const response = await api.get("/users/");
+      console.log(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const getAllNasabah = async () => {
     try {
       const response = await api.get("/queue");
@@ -18,8 +27,8 @@ const Nasabah = () => {
 
       console.log(response.data);
 
-      const online = allNasabah.filter((item) => item.loketId === null);
-      const offline = allNasabah.filter((item) => item.loketId !== null);
+      const offline = allNasabah.filter((item) => item.loketId != null);
+      const online = allNasabah.filter((item) => item.loketId == null);
 
       setNasabahData({ online, offline });
     } catch (error) {
@@ -31,6 +40,7 @@ const Nasabah = () => {
 
   useEffect(() => {
     getAllNasabah();
+    ambilNasabah();
   }, []);
 
   const filteredData =
@@ -109,16 +119,18 @@ const Nasabah = () => {
                     filteredData.map((item, index) => (
                       <tr key={item.id}>
                         <td>{index + 1}</td>
-                        <td>{item.name}</td>
-                        <td>{item.user.email}</td>
-                        <td>{item.user.phoneNumber}</td>
-                        <td>{item.branch.name}</td>
+                        <td>{item.name || "-"}</td>
+                        <td>{item.user?.email || "-"}</td>
+                        <td>{item.user?.phoneNumber || "-"}</td>
+                        <td>{item.branch?.name || "-"}</td>
                       </tr>
                     ))
                   ) : (
                     <tr>
                       <td colSpan="5" className="text-center text-gray-400">
-                        Tidak ada data nasabah ditemukan.
+                        {activeTab === "online"
+                          ? "Tidak ada data pengunjung online."
+                          : "Tidak ada data pengunjung offline."}
                       </td>
                     </tr>
                   )}

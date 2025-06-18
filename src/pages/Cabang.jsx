@@ -117,7 +117,7 @@ const Cabang = () => {
                             👁
                           </NavLink>
                           <NavLink
-                            to={`/cabang/edit/${branch.id}`}
+                            to={`/cabang/edit-cabang/${branch.id}`}
                             className="btn btn-sm btn-warning"
                             title="Edit"
                           >
