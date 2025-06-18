@@ -8,11 +8,14 @@ const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError("");
 
     try {
       const response = await api.post("/users/login", { username, password });
@@ -24,6 +27,8 @@ const Login = () => {
     } catch (error) {
       console.error(error.message);
       setError("Username atau password salah!");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -60,11 +65,15 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+
             <button
               type="submit"
-              className="btn bg-[#F27F0C] uppercase text-white"
+              className={`btn uppercase text-white ${
+                isLoading ? "bg-gray-400 cursor-not-allowed" : "bg-[#F27F0C]"
+              }`}
+              disabled={isLoading}
             >
-              Login
+              {isLoading ? "Loading..." : "Login"}
             </button>
           </form>
         </div>

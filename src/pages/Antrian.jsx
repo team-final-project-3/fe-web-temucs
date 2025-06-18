@@ -60,12 +60,6 @@ const Antrian = () => {
       <div className="min-h-screen">
         <h2 className="text-2xl font-semibold my-3">LIHAT ANTRIAN</h2>
 
-        {!loading && listAntrian.length === 0 && (
-          <div className="mb-3 text-center text-gray-600 font-medium">
-            Tidak ada data yang ditemukan.
-          </div>
-        )}
-
         <div className="bg-base-100 rounded-lg shadow p-4 border-2 border-gray-300">
           <div className="overflow-x-auto">
             {loading ? (
@@ -84,35 +78,46 @@ const Antrian = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {listAntrian.map((antrian, index) => (
-                    <tr key={antrian.id}>
-                      <td>{index + 1}</td>
-                      <td>{antrian.name}</td>
-                      <td>{antrian.dateTime}</td>
-                      <td>{antrian.ticketNumber}</td>
-                      <td>
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-semibold
-                            ${
-                              antrian.status === "Done"
-                                ? "bg-green-100 text-green-700"
-                                : antrian.status === "In Progress"
-                                ? "bg-yellow-100 text-yellow-700"
-                                : antrian.status === "Canceled"
-                                ? "bg-red-100 text-red-700"
-                                : antrian.status === "Waiting"
-                                ? "bg-blue-100 text-blue-700"
-                                : antrian.status === "Skipped"
-                                ? "bg-gray-200 text-gray-700"
-                                : "bg-gray-100 text-gray-500"
-                            }
-                          `}
-                        >
-                          {antrian.status}
-                        </span>
+                  {listAntrian.length > 0 ? (
+                    listAntrian.map((antrian, index) => (
+                      <tr key={antrian.id}>
+                        <td>{index + 1}</td>
+                        <td>{antrian.name}</td>
+                        <td>{antrian.dateTime}</td>
+                        <td>{antrian.ticketNumber}</td>
+                        <td>
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-semibold
+                              ${
+                                antrian.status === "Done"
+                                  ? "bg-green-100 text-green-700"
+                                  : antrian.status === "In Progress"
+                                  ? "bg-yellow-100 text-yellow-700"
+                                  : antrian.status === "Canceled"
+                                  ? "bg-red-100 text-red-700"
+                                  : antrian.status === "Waiting"
+                                  ? "bg-blue-100 text-blue-700"
+                                  : antrian.status === "Skipped"
+                                  ? "bg-gray-200 text-gray-700"
+                                  : "bg-gray-100 text-gray-500"
+                              }
+                            `}
+                          >
+                            {antrian.status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td
+                        colSpan="5"
+                        className="text-center text-gray-600 py-4"
+                      >
+                        Tidak ada data yang ditemukan.
                       </td>
                     </tr>
-                  ))}
+                  )}
                 </tbody>
               </table>
             )}
