@@ -23,6 +23,7 @@ import ProtectedRoutes from "./components/ProtectedRoutes";
 import AddLoket from "./pages/AddLoket";
 import EditCS from "./pages/EditCS";
 import EditLoket from "./pages/EditLoket";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
@@ -208,6 +209,9 @@ function App() {
             </ProtectedRoutes>
           }
         />
+
+        {/* NotFound */}
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>
   );
