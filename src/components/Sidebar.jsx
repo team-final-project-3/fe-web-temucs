@@ -3,7 +3,7 @@ import temuCSLong from "../../public/images/temuCS_long.png";
 import { ChevronFirst, ChevronLast, LogOut } from "lucide-react";
 import SidebarContext from "./SidebarContext";
 import ProfileAdmin from "../../public/images/profile_admin.jpg";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
 const Sidebar = ({ children }) => {
@@ -28,13 +28,15 @@ const Sidebar = ({ children }) => {
               expanded ? "justify-between px-3" : "justify-center"
             } h-16`}
           >
-            <img
-              src={temuCSLong}
-              alt="logo"
-              className={`transition-all overflow-hidden ${
-                expanded ? "w-35 h-20 p-2 ml-1" : "w-0 h-0"
-              }`}
-            />
+            <NavLink to={"/dashboard"}>
+              <img
+                src={temuCSLong}
+                alt="logo"
+                className={`transition-all overflow-hidden ${
+                  expanded ? "w-35 h-20 p-2 ml-1" : "w-0 h-0"
+                }`}
+              />
+            </NavLink>
             <button
               className="p-2 rounded-lg bg-gray-50 hover:bg-gray-100 cursor-pointer"
               onClick={() => setExpanded((curr) => !curr)}
