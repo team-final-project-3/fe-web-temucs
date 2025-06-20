@@ -14,6 +14,7 @@ const Cabang = () => {
     try {
       const response = await api.get("/branch");
       setCabang(response.data.branches);
+      console.log(response.data.branches);
     } catch (error) {
       console.error("Gagal mengambil data cabang:", error);
     } finally {
@@ -36,21 +37,9 @@ const Cabang = () => {
 
   const handleToggleStatus = async () => {
     if (!selectedBranch) return;
-
-    const payload = {
-      name: selectedBranch.name,
-      branchCode: selectedBranch.branchCode,
-      address: selectedBranch.address,
-      longitude: selectedBranch.longitude,
-      latitude: selectedBranch.latitude,
-      holiday: selectedBranch.holiday,
-      status: !selectedBranch.status,
-      updatedBy: selectedBranch.updatedBy,
-    };
-
     try {
       setLoading(true);
-      await api.put(`/branch/${selectedBranch.id}`, payload);
+      await api.put(`/branch/${selectedBranch.id}/status`);
       setShowModal(false);
       setSelectedBranch(null);
       await getCabang();

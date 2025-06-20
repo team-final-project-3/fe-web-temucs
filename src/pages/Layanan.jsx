@@ -15,7 +15,7 @@ const Layanan = () => {
   const getAllServices = async () => {
     setLoading(true);
     try {
-      const response = await api.get("/service");
+      const response = await api.get("/service/user");
       setService(response.data);
     } catch (error) {
       console.error(error);
@@ -37,20 +37,13 @@ const Layanan = () => {
     setShowModal(true);
   };
 
-  const handleNonactiveService = async () => {
+  const handleSoftDeleteService = async () => {
     const layananToUpdate = selectedService;
     if (!layananToUpdate) return alert("Layanan tidak ditemukan");
 
-    const payload = {
-      serviceName: layananToUpdate.serviceName,
-      estimatedTime: layananToUpdate.estimatedTime,
-      updatedBy: layananToUpdate.updatedBy || "admin",
-      status: !layananToUpdate.status,
-    };
-
     try {
       setLoadingId(layananToUpdate.id);
-      await api.put(`/service/${layananToUpdate.id}`, payload);
+      await api.put(`/service/${layananToUpdate.id}/status`);
       await getAllServices();
     } catch (error) {
       console.error("Gagal mengubah status layanan:", error);
@@ -175,7 +168,7 @@ const Layanan = () => {
                   Batal
                 </button>
                 <button
-                  onClick={handleNonactiveService}
+                  onClick={handleSoftDeleteService}
                   className={`btn btn-sm ${
                     selectedService.status ? "btn-error" : "btn-success"
                   }`}

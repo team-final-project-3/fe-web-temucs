@@ -12,8 +12,9 @@ const Dokumen = () => {
 
   const getAllDoc = async () => {
     try {
-      const response = await api.get("/document");
+      const response = await api.get("/document/user");
       setDocument(response.data);
+      console.log(response.data);
     } catch (error) {
       console.error("Error fetching documents:", error);
     } finally {
@@ -34,9 +35,9 @@ const Dokumen = () => {
     setShowModal(true);
   };
 
-  const handleDeleteDoc = async () => {
+  const handleSoftDeleteDoc = async () => {
     try {
-      await api.delete(`/document/${selectedDoc.id}`);
+      await api.put(`/document/${selectedDoc.id}/status`);
       setShowModal(false);
       setSelectedDoc(null);
       getAllDoc();
@@ -88,6 +89,7 @@ const Dokumen = () => {
                   <tr>
                     <th>Number</th>
                     <th>Name</th>
+                    <th>Status</th>
                     <th>Updated By</th>
                     <th>Updated At</th>
                     <th>Action</th>
@@ -98,6 +100,7 @@ const Dokumen = () => {
                     <tr key={doc.id}>
                       <td>{index + 1}</td>
                       <td>{doc.documentName}</td>
+                      <td>{doc.status ? "Aktif" : "Nonaktif"}</td>
                       <td>{doc.updatedBy}</td>
                       <td>{formatDate(doc.updatedAt)}</td>
                       <td className="flex gap-2">
@@ -110,10 +113,12 @@ const Dokumen = () => {
                         </NavLink>
                         <button
                           onClick={() => confirmDelete(doc)}
-                          className="btn btn-sm btn-error"
-                          title="Delete"
+                          className={`btn btn-sm ${
+                            doc.status ? "btn-error" : "btn-success"
+                          }`}
+                          title={doc.status ? "Nonaktifkan" : "Aktifkan"}
                         >
-                          🗑️
+                          {doc.status ? "🗑️" : "✅"}
                         </button>
                       </td>
                     </tr>
@@ -145,7 +150,7 @@ const Dokumen = () => {
                 Batal
               </button>
               <button
-                onClick={handleDeleteDoc}
+                onClick={handleSoftDeleteDoc}
                 className="btn btn-sm btn-error"
               >
                 Hapus

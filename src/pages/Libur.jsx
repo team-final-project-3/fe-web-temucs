@@ -15,6 +15,7 @@ const Libur = () => {
     try {
       const response = await api.get("/holiday");
       setHolidayData(response.data.holidays);
+      console.log(response.data.holidays);
     } catch (error) {
       console.error("Gagal mengambil data libur:", error);
     } finally {
@@ -35,9 +36,9 @@ const Libur = () => {
     setShowModal(true);
   };
 
-  const handleDeleteHoliday = async () => {
+  const handleSoftDeleteHoliday = async () => {
     try {
-      await api.delete(`/holiday/${selectedHoliday.id}`);
+      await api.put(`/holiday/${selectedHoliday.id}/status`);
       setShowModal(false);
       setSelectedHoliday(null);
       setLoading(true);
@@ -81,6 +82,7 @@ const Libur = () => {
                     <th>Number</th>
                     <th>Name</th>
                     <th>Date</th>
+                    <th>Status</th>
                     <th>Updated At</th>
                     <th>Action</th>
                   </tr>
@@ -91,6 +93,7 @@ const Libur = () => {
                       <td>{index + 1}</td>
                       <td>{holiday.holidayName}</td>
                       <td>{formatDate(holiday.date)}</td>
+                      <td>{holiday.status ? "Aktif" : "Nonaktif"}</td>
                       <td>{formatDate(holiday.updatedAt)}</td>
                       <td className="flex gap-2">
                         <NavLink
@@ -136,7 +139,7 @@ const Libur = () => {
                   Batal
                 </button>
                 <button
-                  onClick={handleDeleteHoliday}
+                  onClick={handleSoftDeleteHoliday}
                   className="btn btn-sm btn-error"
                 >
                   Hapus

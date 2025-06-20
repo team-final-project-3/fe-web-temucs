@@ -40,9 +40,9 @@ const DetailCabang = () => {
     setShowModal(true);
   };
 
-  const handleDeleteCS = async () => {
+  const handleSoftDeleteCS = async () => {
     try {
-      await api.delete(`/cs/${selectedCS.id}`);
+      await api.put(`/cs/${selectedCS.id}/status`);
       setShowModal(false);
       setSelectedCS(null);
       getBranchDetail();
@@ -67,7 +67,6 @@ const DetailCabang = () => {
                 {branchDetail.name}
               </h2>
               <div className="space-y-2">
-                {/* Info Cabang */}
                 <div className="flex">
                   <span className="w-40 font-semibold">Nama Cabang</span>
                   <span className="w-4">:</span>
@@ -97,23 +96,30 @@ const DetailCabang = () => {
                 />
               </div>
 
-              {/* Loket Section */}
               <div className="flex items-center justify-between px-4">
                 <div className="w-1/3" />
                 <div className="w-1/3 text-center">
                   <h2 className="text-lg font-semibold">KELOLA LOKET</h2>
                 </div>
                 <div className="w-1/3 flex justify-end">
-                  <NavLink
-                    to={`/cabang/${id}/add-loket`}
-                    className="btn bg-orange-500 text-white hover:bg-orange-600"
-                  >
-                    + Add Loket
-                  </NavLink>
+                  {listLoket.length < 1 ? (
+                    <NavLink
+                      to={`/cabang/${id}/add-loket`}
+                      className="btn bg-orange-500 text-white hover:bg-orange-600"
+                    >
+                      + Add Loket
+                    </NavLink>
+                  ) : (
+                    <button
+                      className="btn bg-gray-400 text-white cursor-not-allowed"
+                      disabled
+                    >
+                      + Add Loket
+                    </button>
+                  )}
                 </div>
               </div>
 
-              {/* Loket Table */}
               <div className="my-10 border-2 border-gray-200 rounded-lg">
                 <div className="overflow-x-auto">
                   <table className="table table-zebra w-full">
@@ -160,7 +166,6 @@ const DetailCabang = () => {
                 </div>
               </div>
 
-              {/* CS Section */}
               <div className="flex items-center justify-between px-4">
                 <div className="w-1/3" />
                 <div className="w-1/3 text-center">
@@ -176,7 +181,6 @@ const DetailCabang = () => {
                 </div>
               </div>
 
-              {/* CS Table */}
               <div className="my-10 border-2 border-gray-200 rounded-lg">
                 <div className="overflow-x-auto">
                   <table className="table table-zebra w-full">
@@ -185,6 +189,7 @@ const DetailCabang = () => {
                         <th>Number</th>
                         <th>Name</th>
                         <th>Username</th>
+                        <th>Status</th>
                         <th>Created By</th>
                         <th>Created At</th>
                         <th>Action</th>
@@ -197,6 +202,7 @@ const DetailCabang = () => {
                             <td>{index + 1}</td>
                             <td>{cs.name}</td>
                             <td>{cs.username}</td>
+                            <td>{cs.status ? "Aktif" : "Nonaktif"}</td>
                             <td>{cs.createdBy}</td>
                             <td>{new Date(cs.createdAt).toLocaleString()}</td>
                             <td className="flex gap-2">
@@ -207,10 +213,12 @@ const DetailCabang = () => {
                                 ✏️
                               </NavLink>
                               <button
-                                className="btn btn-sm btn-error"
+                                className={`btn btn-sm ${
+                                  cs.status ? "btn-error" : "btn-success"
+                                }`}
                                 onClick={() => confirmDeleteCS(cs)}
                               >
-                                🗑️
+                                {cs.status ? "🗑️" : "✅"}
                               </button>
                             </td>
                           </tr>
@@ -230,7 +238,6 @@ const DetailCabang = () => {
           )}
         </div>
 
-        {/* Modal Konfirmasi */}
         {showModal && selectedCS && (
           <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
             <div className="bg-white p-6 rounded-lg shadow-md max-w-sm w-full">
@@ -248,7 +255,7 @@ const DetailCabang = () => {
                   Batal
                 </button>
                 <button
-                  onClick={handleDeleteCS}
+                  onClick={handleSoftDeleteCS}
                   className="btn btn-sm btn-error"
                 >
                   Hapus
