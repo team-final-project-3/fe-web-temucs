@@ -34,8 +34,9 @@ const AddLayanan = () => {
 
   const handleSubmit = async () => {
     const newErrors = {};
+    const cleanedServiceName = serviceName.trim().replace(/\s{2,}/g, " ");
 
-    if (!serviceName.trim()) newErrors.serviceName = "Nama layanan harus diisi";
+    if (!cleanedServiceName) newErrors.serviceName = "Nama layanan harus diisi";
 
     const parsedTime = parseInt(estimateTime);
     if (!estimateTime.trim()) {
@@ -53,14 +54,27 @@ const AddLayanan = () => {
       return;
     }
 
-    const payload = {
-      serviceName: serviceName.trimEnd().replace(/\s{2,}/g, " "),
-      estimatedTime: parsedTime,
-      documentIds: selectedDocuments,
-    };
-
     try {
-      const response = await api.post("/service", payload);
+      const serviceList = await api.get("/service");
+      const existing = serviceList.data.find(
+        (svc) =>
+          svc.serviceName &&
+          svc.serviceName.toLowerCase() === cleanedServiceName.toLowerCase()
+      );
+
+      if (existing) {
+        setErrors({ serviceName: "Nama layanan sudah ada" });
+        return;
+      }
+
+      const payload = {
+        serviceName: cleanedServiceName,
+        estimatedTime: parsedTime,
+        documentIds: selectedDocuments,
+      };
+
+      await api.post("/service", payload);
+
       setServiceName("");
       setEstimateTime("");
       setSelectedDocuments([]);

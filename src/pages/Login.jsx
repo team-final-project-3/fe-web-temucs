@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import temuCSLongDark from "../../public/images/temuCS_long_dark.png";
 import { useNavigate } from "react-router-dom";
 import api from "../utils/api";
@@ -11,6 +11,21 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        const decoded = jwtDecode(token);
+        if (decoded.role === "admin") {
+          navigate("/dashboard");
+        }
+      } catch (err) {
+        console.error("Invalid token:", err.message);
+        localStorage.removeItem("token");
+      }
+    }
+  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();

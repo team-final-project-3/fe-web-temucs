@@ -32,6 +32,8 @@ const EditDokumen = () => {
 
   const handleEditDocument = async (e) => {
     e.preventDefault();
+    console.log(id);
+
     const newErrors = {};
 
     if (!document.trim()) {
@@ -46,7 +48,7 @@ const EditDokumen = () => {
     setLoading(true);
 
     try {
-      const allDocs = await api.get("/document");
+      const allDocs = await api.get("/document/user");
 
       const isDuplicate = allDocs.data.find(
         (doc) =>
@@ -63,10 +65,10 @@ const EditDokumen = () => {
         return;
       }
 
+      console.log(id);
+
       const updateResponse = await api.put(`/document/${id}`, {
         documentName: document.trim(),
-        updatedBy: data.username || "Unknown",
-        updatedAt: new Date().toISOString(),
       });
 
       console.log("Dokumen berhasil diperbarui:", updateResponse.data);

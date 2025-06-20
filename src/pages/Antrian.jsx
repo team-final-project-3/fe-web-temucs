@@ -15,7 +15,7 @@ const Antrian = () => {
 
       const mapped = data.flatMap((item) =>
         item.queueLogs.map((log, index) => ({
-          id: `${item.ticketNumber}-${index}`,
+          id: `${item.ticketNumber}-${new Date(log.createdAt).getTime()}`,
           name: item.name,
           dateTime: new Date(log.createdAt).toLocaleString("id-ID", {
             dateStyle: "short",
