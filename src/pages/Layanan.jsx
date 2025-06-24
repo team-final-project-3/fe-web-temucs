@@ -11,6 +11,7 @@ const Layanan = () => {
   const [loadingId, setLoadingId] = useState(null);
   const [selectedService, setSelectedService] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
 
   const getAllServices = async () => {
     setLoading(true);
@@ -31,6 +32,41 @@ const Layanan = () => {
   const filteredLayanan = service.filter((layanan) =>
     (layanan.serviceName || "").toLowerCase().includes(search.toLowerCase())
   );
+
+  const sortedLayanan = [...filteredLayanan].sort((a, b) => {
+    if (!sortConfig.key) return 0;
+    const aVal = a[sortConfig.key];
+    const bVal = b[sortConfig.key];
+
+    if (sortConfig.key === "updatedAt") {
+      return sortConfig.direction === "asc"
+        ? new Date(aVal) - new Date(bVal)
+        : new Date(bVal) - new Date(aVal);
+    }
+
+    if (typeof aVal === "string" && typeof bVal === "string") {
+      return sortConfig.direction === "asc"
+        ? aVal.localeCompare(bVal)
+        : bVal.localeCompare(aVal);
+    }
+
+    if (aVal < bVal) return sortConfig.direction === "asc" ? -1 : 1;
+    if (aVal > bVal) return sortConfig.direction === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  const requestSort = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const renderSortIcon = (key) => {
+    if (sortConfig.key !== key) return "↕";
+    return sortConfig.direction === "asc" ? "↑" : "↓";
+  };
 
   const confirmToggleStatus = (layanan) => {
     setSelectedService(layanan);
@@ -82,62 +118,80 @@ const Layanan = () => {
               <div className="text-center py-10 font-medium text-gray-600">
                 Loading...
               </div>
-            ) : filteredLayanan.length > 0 ? (
-              <>
-                <table className="table table-zebra w-full">
-                  <thead>
-                    <tr>
-                      <th>Number</th>
-                      <th>Name</th>
-                      <th>Status</th>
-                      <th>Updated By</th>
-                      <th>Updated At</th>
-                      <th>Action</th>
+            ) : sortedLayanan.length > 0 ? (
+              <table className="table table-zebra w-full">
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th
+                      onClick={() => requestSort("serviceName")}
+                      className="cursor-pointer"
+                    >
+                      Name {renderSortIcon("serviceName")}
+                    </th>
+                    <th
+                      onClick={() => requestSort("status")}
+                      className="cursor-pointer"
+                    >
+                      Status {renderSortIcon("status")}
+                    </th>
+                    <th
+                      onClick={() => requestSort("updatedBy")}
+                      className="cursor-pointer"
+                    >
+                      Updated By {renderSortIcon("updatedBy")}
+                    </th>
+                    <th
+                      onClick={() => requestSort("updatedAt")}
+                      className="cursor-pointer"
+                    >
+                      Updated At {renderSortIcon("updatedAt")}
+                    </th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedLayanan.map((layanan, index) => (
+                    <tr key={layanan.id}>
+                      <td>{index + 1}</td>
+                      <td>{layanan.serviceName}</td>
+                      <td>{layanan.status ? "Aktif" : "Nonaktif"}</td>
+                      <td>{layanan.updatedBy}</td>
+                      <td>{formatDate(layanan.updatedAt)}</td>
+                      <td className="flex gap-2">
+                        <NavLink
+                          to={`/layanan/${layanan.id}`}
+                          className="btn btn-sm btn-info"
+                          title="View"
+                        >
+                          👁
+                        </NavLink>
+                        <NavLink
+                          to={`/layanan/edit-layanan/${layanan.id}`}
+                          className="btn btn-sm btn-warning"
+                          title="Edit"
+                        >
+                          ✏️
+                        </NavLink>
+                        <button
+                          onClick={() => confirmToggleStatus(layanan)}
+                          className={`btn btn-sm ${
+                            layanan.status ? "btn-error" : "btn-success"
+                          }`}
+                          title={layanan.status ? "Nonaktifkan" : "Aktifkan"}
+                          disabled={loadingId === layanan.id}
+                        >
+                          {loadingId === layanan.id
+                            ? "⏳"
+                            : layanan.status
+                            ? "🗑️"
+                            : "✅"}
+                        </button>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {filteredLayanan.map((layanan, index) => (
-                      <tr key={layanan.id}>
-                        <td>{index + 1}</td>
-                        <td>{layanan.serviceName}</td>
-                        <td>{layanan.status ? "Aktif" : "Nonaktif"}</td>
-                        <td>{layanan.updatedBy}</td>
-                        <td>{formatDate(layanan.updatedAt)}</td>
-                        <td className="flex gap-2">
-                          <NavLink
-                            to={`/layanan/${layanan.id}`}
-                            className="btn btn-sm btn-info"
-                            title="View"
-                          >
-                            👁
-                          </NavLink>
-                          <NavLink
-                            to={`/layanan/edit-layanan/${layanan.id}`}
-                            className="btn btn-sm btn-warning"
-                            title="Edit"
-                          >
-                            ✏️
-                          </NavLink>
-                          <button
-                            onClick={() => confirmToggleStatus(layanan)}
-                            className={`btn btn-sm ${
-                              layanan.status ? "btn-error" : "btn-success"
-                            }`}
-                            title={layanan.status ? "Nonaktifkan" : "Aktifkan"}
-                            disabled={loadingId === layanan.id}
-                          >
-                            {loadingId === layanan.id
-                              ? "⏳"
-                              : layanan.status
-                              ? "🗑️"
-                              : "✅"}
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </>
+                  ))}
+                </tbody>
+              </table>
             ) : (
               <div className="text-center py-6 text-gray-500">
                 Tidak ada layanan yang ditemukan.

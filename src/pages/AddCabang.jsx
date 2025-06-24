@@ -46,7 +46,7 @@ const AddCabang = () => {
       return;
     }
 
-    setLoading(true); // Mulai loading
+    setLoading(true);
 
     try {
       const dataCabang = {
@@ -71,7 +71,7 @@ const AddCabang = () => {
         error.response?.data?.message || error.message || "Terjadi kesalahan";
       setErrors((prev) => ({ ...prev, backend: errorMessage }));
     } finally {
-      setLoading(false); // Stop loading
+      setLoading(false);
     }
   };
 

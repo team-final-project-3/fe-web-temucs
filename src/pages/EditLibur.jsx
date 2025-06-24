@@ -11,7 +11,7 @@ const EditLibur = () => {
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false); // loading state
+  const [loading, setLoading] = useState(false);
 
   const fetchHolidayById = async () => {
     try {
@@ -38,7 +38,7 @@ const EditLibur = () => {
 
     if (calendar && button) {
       const today = new Date().toISOString().split("T")[0];
-      calendar.setAttribute("min", today); // cegah pilih tanggal sebelum hari ini
+      calendar.setAttribute("min", today);
 
       calendar.onchange = function () {
         const val = this.value;

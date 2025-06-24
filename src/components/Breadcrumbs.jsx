@@ -19,13 +19,11 @@ const Breadcrumbs = () => {
             .replace(/-/g, " ")
             .replace(/\b\w/g, (char) => char.toLowerCase());
 
-          // Cek apakah path mengandung pola 'edit-*'
           const editMatch = name.match(/^edit-(.+)/);
 
           return (
             <li key={index} className="text-[#FF800A]">
               {editMatch ? (
-                // Jika cocok dengan edit-*, render <p> untuk bagian edit dan Link untuk bagian selanjutnya (jika ada)
                 <>
                   <p>{`edit ${editMatch[1].replace(/-/g, " ")}`}</p>
                 </>

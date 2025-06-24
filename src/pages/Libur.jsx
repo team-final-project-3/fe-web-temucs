@@ -10,12 +10,12 @@ const Libur = () => {
   const [selectedHoliday, setSelectedHoliday] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
 
   const getHoliday = async () => {
     try {
       const response = await api.get("/holiday");
       setHolidayData(response.data.holidays);
-      console.log(response.data.holidays);
     } catch (error) {
       console.error("Gagal mengambil data libur:", error);
     } finally {
@@ -30,6 +30,41 @@ const Libur = () => {
   const filteredHoliday = holidayData.filter((holiday) =>
     (holiday.holidayName || "").toLowerCase().includes(search.toLowerCase())
   );
+
+  const sortedHoliday = [...filteredHoliday].sort((a, b) => {
+    if (!sortConfig.key) return 0;
+    const aValue = a[sortConfig.key];
+    const bValue = b[sortConfig.key];
+
+    if (sortConfig.key === "date" || sortConfig.key === "updatedAt") {
+      return sortConfig.direction === "asc"
+        ? new Date(aValue) - new Date(bValue)
+        : new Date(bValue) - new Date(aValue);
+    }
+
+    if (typeof aValue === "string" && typeof bValue === "string") {
+      return sortConfig.direction === "asc"
+        ? aValue.localeCompare(bValue)
+        : bValue.localeCompare(aValue);
+    }
+
+    if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+    if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  const requestSort = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const renderSortIcon = (key) => {
+    if (sortConfig.key !== key) return "↕";
+    return sortConfig.direction === "asc" ? "↑" : "↓";
+  };
 
   const confirmDelete = (holiday) => {
     setSelectedHoliday(holiday);
@@ -75,20 +110,40 @@ const Libur = () => {
               <div className="text-center py-10 font-medium text-gray-600">
                 Loading...
               </div>
-            ) : filteredHoliday.length > 0 ? (
+            ) : sortedHoliday.length > 0 ? (
               <table className="table table-zebra w-full">
                 <thead>
                   <tr>
-                    <th>Number</th>
-                    <th>Name</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                    <th>Updated At</th>
+                    <th>No</th>
+                    <th
+                      onClick={() => requestSort("holidayName")}
+                      className="cursor-pointer"
+                    >
+                      Name {renderSortIcon("holidayName")}
+                    </th>
+                    <th
+                      onClick={() => requestSort("date")}
+                      className="cursor-pointer"
+                    >
+                      Date {renderSortIcon("date")}
+                    </th>
+                    <th
+                      onClick={() => requestSort("status")}
+                      className="cursor-pointer"
+                    >
+                      Status {renderSortIcon("status")}
+                    </th>
+                    <th
+                      onClick={() => requestSort("updatedAt")}
+                      className="cursor-pointer"
+                    >
+                      Updated At {renderSortIcon("updatedAt")}
+                    </th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredHoliday.map((holiday, index) => (
+                  {sortedHoliday.map((holiday, index) => (
                     <tr key={holiday.id}>
                       <td>{index + 1}</td>
                       <td>{holiday.holidayName}</td>

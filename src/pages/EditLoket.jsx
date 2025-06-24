@@ -11,7 +11,7 @@ const EditLoket = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false); // <--- Tambahkan state loading
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const getLoketDetail = async () => {
@@ -57,7 +57,7 @@ const EditLoket = () => {
       return;
     }
 
-    setLoading(true); // Mulai loading
+    setLoading(true);
 
     try {
       const payload = {
@@ -76,7 +76,7 @@ const EditLoket = () => {
         error.response?.data?.message || error.message || "Terjadi kesalahan";
       setErrors((prev) => ({ ...prev, backend: errorMessage }));
     } finally {
-      setLoading(false); // Selesai loading
+      setLoading(false);
     }
   };
 

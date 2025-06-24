@@ -9,6 +9,7 @@ const Dokumen = () => {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [selectedDoc, setSelectedDoc] = useState(null);
+  const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
 
   const getAllDoc = async () => {
     try {
@@ -26,9 +27,52 @@ const Dokumen = () => {
     getAllDoc();
   }, []);
 
+  const formatDate = (dateString) => {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("id-ID", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+  };
+
   const filteredDoc = document.filter((doc) =>
     (doc.documentName || "").toLowerCase().includes(search.toLowerCase())
   );
+
+  const sortedDoc = [...filteredDoc].sort((a, b) => {
+    if (!sortConfig.key) return 0;
+    const aVal = a[sortConfig.key];
+    const bVal = b[sortConfig.key];
+
+    if (sortConfig.key === "updatedAt") {
+      return sortConfig.direction === "asc"
+        ? new Date(aVal) - new Date(bVal)
+        : new Date(bVal) - new Date(aVal);
+    }
+
+    if (typeof aVal === "string" && typeof bVal === "string") {
+      return sortConfig.direction === "asc"
+        ? aVal.localeCompare(bVal)
+        : bVal.localeCompare(aVal);
+    }
+
+    return sortConfig.direction === "asc" ? aVal - bVal : bVal - aVal;
+  });
+
+  const requestSort = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const renderSortIcon = (key) => {
+    if (sortConfig.key !== key) return "↕";
+    return sortConfig.direction === "asc" ? "↑" : "↓";
+  };
 
   const confirmDelete = (doc) => {
     setSelectedDoc(doc);
@@ -44,16 +88,6 @@ const Dokumen = () => {
     } catch (error) {
       console.error("Delete error:", error);
     }
-  };
-
-  const formatDate = (dateString) => {
-    if (!dateString) return "-";
-    const date = new Date(dateString);
-    return date.toLocaleDateString("id-ID", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-    });
   };
 
   return (
@@ -83,20 +117,40 @@ const Dokumen = () => {
               <div className="text-center py-10 font-medium text-gray-600">
                 Loading...
               </div>
-            ) : filteredDoc.length > 0 ? (
+            ) : sortedDoc.length > 0 ? (
               <table className="table table-zebra w-full">
                 <thead>
                   <tr>
-                    <th>Number</th>
-                    <th>Name</th>
-                    <th>Status</th>
-                    <th>Updated By</th>
-                    <th>Updated At</th>
+                    <th>No</th>
+                    <th
+                      onClick={() => requestSort("documentName")}
+                      className="cursor-pointer"
+                    >
+                      Name {renderSortIcon("documentName")}
+                    </th>
+                    <th
+                      onClick={() => requestSort("status")}
+                      className="cursor-pointer"
+                    >
+                      Status {renderSortIcon("status")}
+                    </th>
+                    <th
+                      onClick={() => requestSort("updatedBy")}
+                      className="cursor-pointer"
+                    >
+                      Updated By {renderSortIcon("updatedBy")}
+                    </th>
+                    <th
+                      onClick={() => requestSort("updatedAt")}
+                      className="cursor-pointer"
+                    >
+                      Updated At {renderSortIcon("updatedAt")}
+                    </th>
                     <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredDoc.map((doc, index) => (
+                  {sortedDoc.map((doc, index) => (
                     <tr key={doc.id}>
                       <td>{index + 1}</td>
                       <td>{doc.documentName}</td>
