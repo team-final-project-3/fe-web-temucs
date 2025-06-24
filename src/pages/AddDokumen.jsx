@@ -30,7 +30,7 @@ const AddDokumen = () => {
     setLoading(true);
 
     try {
-      const response = await api.get("/document");
+      const response = await api.get("/document/user");
 
       const existing = response.data.find(
         (doc) =>
@@ -39,23 +39,22 @@ const AddDokumen = () => {
       );
 
       if (existing) {
-        newErrors.documentName = "Nama Dokumen sudah ada";
-        setErrors(newErrors);
+        setErrors({ documentName: "Nama Dokumen sudah ada" });
         setLoading(false);
         return;
       }
 
-      const addResponse = await api.post("/document", {
+      const payload = {
         documentName: cleanedDocument,
         date: Date.now(),
         createdBy: localStorage.getItem("username") || "Unknown",
         updatedBy: localStorage.getItem("username") || "Unknown",
-      });
+      };
 
-      console.log("Dokumen berhasil ditambahkan:", addResponse.data);
+      await api.post("/document", payload);
+
       navigate("/dokumen");
     } catch (error) {
-      console.error("Gagal menambahkan dokumen:", error);
       const errorMessage =
         error.response?.data?.message || error.message || "Terjadi kesalahan";
       setErrors((prev) => ({ ...prev, backend: errorMessage }));
@@ -80,7 +79,7 @@ const AddDokumen = () => {
               placeholder="Nama Dokumen"
               value={document}
               onChange={(e) => {
-                setDocument(e.target.value.replace(/^\s+/, "")); // Hapus spasi di awal
+                setDocument(e.target.value.replace(/^\s+/, ""));
                 setErrors((prev) => ({ ...prev, documentName: "" }));
               }}
               onBlur={(e) => setDocument(normalizeDocumentName(e.target.value))}
@@ -99,7 +98,7 @@ const AddDokumen = () => {
 
             <div className="flex justify-center gap-5">
               <NavLink
-                to={"/dokumen"}
+                to="/dokumen"
                 className="btn bg-white border-orange-500 mt-4 text-orange-300 font-semibold"
               >
                 Batalkan

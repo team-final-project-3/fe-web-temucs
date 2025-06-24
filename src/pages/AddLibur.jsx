@@ -8,7 +8,7 @@ const AddLibur = () => {
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
   const [errors, setErrors] = useState({});
-
+  const [loading, setLoading] = useState(false); // <-- Tambahkan loading
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -16,6 +16,10 @@ const AddLibur = () => {
     const button = document.getElementById("cally1");
 
     if (calendar && button) {
+      // Set minimum date to today
+      const today = new Date().toISOString().split("T")[0];
+      calendar.setAttribute("min", today);
+
       calendar.onchange = function () {
         const val = this.value;
         setDate(val);
@@ -37,6 +41,8 @@ const AddLibur = () => {
       return;
     }
 
+    setLoading(true);
+
     try {
       await api.post("/holiday", {
         holidayName: name.trim(),
@@ -50,6 +56,8 @@ const AddLibur = () => {
       const errorMessage =
         error.response?.data?.message || error.message || "Terjadi kesalahan";
       setErrors((prev) => ({ ...prev, backend: errorMessage }));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -141,9 +149,21 @@ const AddLibur = () => {
               </button>
               <button
                 onClick={handleAddHoliday}
-                className="btn bg-orange-500 mt-6 text-white font-semibold"
+                disabled={loading}
+                className={`btn mt-6 text-white font-semibold ${
+                  loading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-orange-500 hover:bg-orange-600"
+                }`}
               >
-                Simpan
+                {loading ? (
+                  <>
+                    Menyimpan...
+                    <span className="loading loading-spinner loading-sm ml-2"></span>
+                  </>
+                ) : (
+                  "Simpan"
+                )}
               </button>
             </div>
           </fieldset>

@@ -31,7 +31,6 @@ const Layout = ({ children }) => {
           text="Cabang"
           to="/cabang"
         />
-        <SidebarItem icon={<Users size={20} />} text="Nasabah" to="/nasabah" />
         <SidebarItem
           icon={<CalendarPlus size={20} />}
           text="Libur"

@@ -11,6 +11,7 @@ const EditCS = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const hasNoSpaces = (value) => /^\S+$/.test(value);
 
@@ -54,6 +55,8 @@ const EditCS = () => {
       return;
     }
 
+    setLoading(true);
+
     try {
       const payload = {
         name: name.trimEnd().replace(/\s{2,}/g, " "),
@@ -70,6 +73,8 @@ const EditCS = () => {
       const errorMessage =
         error.response?.data?.message || error.message || "Terjadi kesalahan";
       setErrors((prev) => ({ ...prev, backend: errorMessage }));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -114,7 +119,6 @@ const EditCS = () => {
                 if (e.key === " ") e.preventDefault();
               }}
             />
-
             {errors.username && (
               <span className="text-sm text-red-500">{errors.username}</span>
             )}
@@ -154,9 +158,21 @@ const EditCS = () => {
               </NavLink>
               <button
                 onClick={handleEditCS}
-                className="btn bg-orange-500 text-white hover:bg-orange-600"
+                disabled={loading}
+                className={`btn text-white font-semibold ${
+                  loading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-orange-500 hover:bg-orange-600"
+                }`}
               >
-                Simpan Perubahan
+                {loading ? (
+                  <>
+                    Memproses...
+                    <span className="loading loading-spinner loading-sm ml-2"></span>
+                  </>
+                ) : (
+                  "Simpan Perubahan"
+                )}
               </button>
             </div>
           </fieldset>

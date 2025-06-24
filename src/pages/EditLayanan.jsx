@@ -9,13 +9,14 @@ const EditLayanan = () => {
   const [documents, setDocuments] = useState([]);
   const [selectedDocuments, setSelectedDocuments] = useState([]);
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
   const { id } = useParams();
 
   const fetchDocuments = async () => {
     try {
-      const response = await api.get("/document");
+      const response = await api.get("/document/user");
       setDocuments(response.data);
     } catch (error) {
       console.error("Gagal mengambil dokumen:", error);
@@ -71,6 +72,7 @@ const EditLayanan = () => {
       updatedBy: "admin",
     };
 
+    setLoading(true);
     try {
       await api.put(`/service/${id}`, payload);
       navigate("/layanan");
@@ -79,6 +81,8 @@ const EditLayanan = () => {
       const errorMessage =
         error.response?.data?.message || error.message || "Terjadi kesalahan";
       setErrors((prev) => ({ ...prev, backend: errorMessage }));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -157,10 +161,13 @@ const EditLayanan = () => {
                 Batalkan
               </button>
               <button
-                className="btn bg-orange-500 mt-4 text-white font-semibold"
+                className={`btn mt-4 text-white font-semibold ${
+                  loading ? "bg-orange-300 cursor-not-allowed" : "bg-orange-500"
+                }`}
+                disabled={loading}
                 onClick={handleSubmit}
               >
-                Simpan Perubahan
+                {loading ? "Loading..." : "Simpan Perubahan"}
               </button>
             </div>
           </fieldset>

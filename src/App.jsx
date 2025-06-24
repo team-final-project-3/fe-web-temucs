@@ -19,13 +19,36 @@ import DetailLayanan from "./pages/DetailLayanan";
 import Dokumen from "./pages/Dokumen";
 import AddDokumen from "./pages/AddDokumen";
 import EditDokumen from "./pages/EditDokumen";
-import ProtectedRoutes from "./components/ProtectedRoutes";
 import AddLoket from "./pages/AddLoket";
 import EditCS from "./pages/EditCS";
 import EditLoket from "./pages/EditLoket";
 import NotFound from "./pages/NotFound";
+import ProtectedRoutes from "./components/ProtectedRoutes";
+import NoInternet from "./components/NoInternet";
+import { useEffect, useState } from "react";
 
 function App() {
+  const [isOnline, setIsOnline] = useState(navigator.onLine);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
+
+  const handleRetry = () => window.location.reload();
+
+  if (!isOnline) {
+    return <NoInternet onRetry={handleRetry} />;
+  }
+
   return (
     <Router>
       <Routes>
@@ -131,14 +154,14 @@ function App() {
         />
 
         {/* nasabah */}
-        <Route
+        {/* <Route
           path="/nasabah"
           element={
             <ProtectedRoutes>
               <Nasabah />
             </ProtectedRoutes>
           }
-        />
+        /> */}
 
         {/* layanan */}
         <Route
