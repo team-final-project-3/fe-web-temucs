@@ -76,6 +76,11 @@ const TopKeluhanCharts = ({ view, onDataUpdate }) => {
         <p className="text-gray-500 text-sm text-center mt-10">
           Loading chart...
         </p>
+      ) : chartData.length === 0 ? (
+        <p className="text-gray-500 text-sm text-center mt-10">
+          Tidak ada data keluhan untuk ditampilkan. (Silakan tambah data
+          terlebih dahulu.)
+        </p>
       ) : (
         <ResponsiveContainer width="100%" height="80%">
           <BarChart data={chartData} layout="vertical" margin={{ left: 20 }}>

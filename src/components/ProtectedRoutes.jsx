@@ -18,7 +18,6 @@ const ProtectedRoutes = ({ children }) => {
     }
 
     return children;
-    // next dev: buat token bearer
   } catch (error) {
     console.error("Invalid token:", error.message);
     return <Navigate to="/" replace />;

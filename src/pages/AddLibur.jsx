@@ -8,7 +8,7 @@ const AddLibur = () => {
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
   const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false); // <-- Tambahkan loading
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -16,7 +16,6 @@ const AddLibur = () => {
     const button = document.getElementById("cally1");
 
     if (calendar && button) {
-      // Set minimum date to today
       const today = new Date().toISOString().split("T")[0];
       calendar.setAttribute("min", today);
 

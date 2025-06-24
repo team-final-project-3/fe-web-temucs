@@ -6,13 +6,13 @@ const Antrian = () => {
   const [listAntrian, setListAntrian] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("all");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
 
   const fetchAntrian = async () => {
     try {
       const response = await api.get("/queue");
       const data = response.data?.data || [];
-
-      console.log(data);
 
       const mapped = data.flatMap((item) =>
         item.queueLogs.map((log) => ({
@@ -24,6 +24,7 @@ const Antrian = () => {
             dateStyle: "short",
             timeStyle: "medium",
           }),
+          rawDate: new Date(log.createdAt),
           ticketNumber: item.ticketNumber,
           status:
             log.status === "waiting"
@@ -54,19 +55,49 @@ const Antrian = () => {
     fetchAntrian();
   }, []);
 
-  const filteredAntrian = listAntrian.filter((item) => {
-    if (activeTab === "online") return item.loketId === null;
-    if (activeTab === "offline") return item.loketId !== null;
-    return true;
+  const filteredAntrian = listAntrian
+    .filter((item) => {
+      if (activeTab === "online") return item.loketId === null;
+      if (activeTab === "offline") return item.loketId !== null;
+      return true;
+    })
+    .filter((item) =>
+      Object.values(item)
+        .join(" ")
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase())
+    );
+
+  const sortedAntrian = [...filteredAntrian].sort((a, b) => {
+    if (!sortConfig.key) return 0;
+    const aValue = a[sortConfig.key];
+    const bValue = b[sortConfig.key];
+
+    if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+    if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+    return 0;
   });
+
+  const requestSort = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const renderSortIcon = (key) => {
+    if (sortConfig.key !== key) return "↕";
+    return sortConfig.direction === "asc" ? "↑" : "↓";
+  };
 
   return (
     <Layout>
       <div className="min-h-screen">
         <h2 className="text-2xl font-semibold my-3">LIHAT ANTRIAN</h2>
 
-        <div className="p-4 bg-white rounded-lg shadow border border-gray-200 mb-4">
-          <div role="tablist" className="tabs tabs-lift">
+        <div className="p-4 bg-white rounded-lg shadow border border-gray-200 mb-4 flex justify-between items-center">
+          <div role="tablist" className="tabs tabs-lift mb-2">
             {["all", "online", "offline"].map((tab) => (
               <button
                 key={tab}
@@ -87,6 +118,13 @@ const Antrian = () => {
               </button>
             ))}
           </div>
+          <input
+            type="text"
+            placeholder="Cari nama, email, nomor tiket, dll..."
+            className="input input-bordered"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
 
         <div className="bg-base-100 rounded-lg shadow p-4 border-2 border-gray-300">
@@ -100,18 +138,53 @@ const Antrian = () => {
                 <thead>
                   <tr>
                     <th>No</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone Number</th>
-                    <th>Ticket Number</th>
-                    <th>Branch Name</th>
-                    <th>Date Time</th>
-                    <th>Status</th>
+                    <th
+                      onClick={() => requestSort("name")}
+                      className="cursor-pointer"
+                    >
+                      Name {renderSortIcon("name")}
+                    </th>
+                    <th
+                      onClick={() => requestSort("email")}
+                      className="cursor-pointer"
+                    >
+                      Email {renderSortIcon("email")}
+                    </th>
+                    <th
+                      onClick={() => requestSort("phoneNumber")}
+                      className="cursor-pointer"
+                    >
+                      Phone {renderSortIcon("phoneNumber")}
+                    </th>
+                    <th
+                      onClick={() => requestSort("ticketNumber")}
+                      className="cursor-pointer"
+                    >
+                      Ticket {renderSortIcon("ticketNumber")}
+                    </th>
+                    <th
+                      onClick={() => requestSort("branchName")}
+                      className="cursor-pointer"
+                    >
+                      Branch {renderSortIcon("branchName")}
+                    </th>
+                    <th
+                      onClick={() => requestSort("rawDate")}
+                      className="cursor-pointer"
+                    >
+                      Date {renderSortIcon("rawDate")}
+                    </th>
+                    <th
+                      onClick={() => requestSort("status")}
+                      className="cursor-pointer"
+                    >
+                      Status {renderSortIcon("status")}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredAntrian.length > 0 ? (
-                    filteredAntrian.map((antrian, index) => (
+                  {sortedAntrian.length > 0 ? (
+                    sortedAntrian.map((antrian, index) => (
                       <tr key={antrian.id}>
                         <td>{index + 1}</td>
                         <td>{antrian.name}</td>
@@ -144,7 +217,7 @@ const Antrian = () => {
                   ) : (
                     <tr>
                       <td
-                        colSpan="6"
+                        colSpan="8"
                         className="text-center text-gray-600 py-4"
                       >
                         Tidak ada data antrian yang ditemukan.

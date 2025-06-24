@@ -9,12 +9,12 @@ const Cabang = () => {
   const [loading, setLoading] = useState(true);
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
 
   const getCabang = async () => {
     try {
       const response = await api.get("/branch");
       setCabang(response.data.branches);
-      console.log(response.data.branches);
     } catch (error) {
       console.error("Gagal mengambil data cabang:", error);
     } finally {
@@ -25,10 +25,6 @@ const Cabang = () => {
   useEffect(() => {
     getCabang();
   }, []);
-
-  const filteredBranches = cabang.filter((branch) =>
-    branch.name.toLowerCase().includes(search.toLowerCase())
-  );
 
   const confirmToggleStatus = (branch) => {
     setSelectedBranch(branch);
@@ -49,6 +45,39 @@ const Cabang = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const filteredBranches = cabang.filter((branch) =>
+    branch.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const sortedBranches = [...filteredBranches].sort((a, b) => {
+    if (!sortConfig.key) return 0;
+    const aValue = a[sortConfig.key];
+    const bValue = b[sortConfig.key];
+
+    if (typeof aValue === "string" && typeof bValue === "string") {
+      return sortConfig.direction === "asc"
+        ? aValue.localeCompare(bValue)
+        : bValue.localeCompare(aValue);
+    }
+
+    if (aValue < bValue) return sortConfig.direction === "asc" ? -1 : 1;
+    if (aValue > bValue) return sortConfig.direction === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  const requestSort = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const renderSortIcon = (key) => {
+    if (sortConfig.key !== key) return "↕";
+    return sortConfig.direction === "asc" ? "↑" : "↓";
   };
 
   return (
@@ -78,55 +107,68 @@ const Cabang = () => {
               <div className="text-center py-10 font-medium text-gray-600">
                 Loading...
               </div>
-            ) : filteredBranches.length > 0 ? (
-              <>
-                <table className="table table-zebra w-full">
-                  <thead>
-                    <tr>
-                      <th>Number</th>
-                      <th>Name</th>
-                      <th>Location</th>
-                      <th>Status</th>
-                      <th>Action</th>
+            ) : sortedBranches.length > 0 ? (
+              <table className="table table-zebra w-full">
+                <thead>
+                  <tr>
+                    <th>No</th>
+                    <th
+                      onClick={() => requestSort("name")}
+                      className="cursor-pointer"
+                    >
+                      Name {renderSortIcon("name")}
+                    </th>
+                    <th
+                      onClick={() => requestSort("address")}
+                      className="cursor-pointer"
+                    >
+                      Location {renderSortIcon("address")}
+                    </th>
+                    <th
+                      onClick={() => requestSort("status")}
+                      className="cursor-pointer"
+                    >
+                      Status {renderSortIcon("status")}
+                    </th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sortedBranches.map((branch, index) => (
+                    <tr key={branch.id}>
+                      <td>{index + 1}</td>
+                      <td>{branch.name}</td>
+                      <td>{branch.address}</td>
+                      <td>{branch.status ? "Aktif" : "Nonaktif"}</td>
+                      <td className="flex gap-2">
+                        <NavLink
+                          to={`/cabang/${branch.id}`}
+                          className="btn btn-sm btn-info"
+                          title="View"
+                        >
+                          👁
+                        </NavLink>
+                        <NavLink
+                          to={`/cabang/edit-cabang/${branch.id}`}
+                          className="btn btn-sm btn-warning"
+                          title="Edit"
+                        >
+                          ✏️
+                        </NavLink>
+                        <button
+                          onClick={() => confirmToggleStatus(branch)}
+                          className={`btn btn-sm ${
+                            branch.status ? "btn-error" : "btn-success"
+                          }`}
+                          title={branch.status ? "Nonaktifkan" : "Aktifkan"}
+                        >
+                          {branch.status ? "🗑️" : "✅"}
+                        </button>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {filteredBranches.map((branch, index) => (
-                      <tr key={branch.id}>
-                        <td>{index + 1}</td>
-                        <td>{branch.name}</td>
-                        <td>{branch.address}</td>
-                        <td>{branch.status ? "Aktif" : "Nonaktif"}</td>
-                        <td className="flex gap-2">
-                          <NavLink
-                            to={`/cabang/${branch.id}`}
-                            className="btn btn-sm btn-info"
-                            title="View"
-                          >
-                            👁
-                          </NavLink>
-                          <NavLink
-                            to={`/cabang/edit-cabang/${branch.id}`}
-                            className="btn btn-sm btn-warning"
-                            title="Edit"
-                          >
-                            ✏️
-                          </NavLink>
-                          <button
-                            onClick={() => confirmToggleStatus(branch)}
-                            className={`btn btn-sm ${
-                              branch.status ? "btn-error" : "btn-success"
-                            }`}
-                            title={branch.status ? "Nonaktifkan" : "Aktifkan"}
-                          >
-                            {branch.status ? "🗑️" : "✅"}
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </>
+                  ))}
+                </tbody>
+              </table>
             ) : (
               <div className="text-center py-6 text-gray-500">
                 Tidak ada cabang yang ditemukan.
