@@ -26,7 +26,12 @@ const SidebarItem = ({ icon, text, to }) => {
         {text}
       </span>
       {!expanded && (
-        <div className="absolute left-full rounded-md px-2 py-1 ml-6 bg-indigo-100 text-indigo-800 text-sm invisible opacity-0 -translate-x-3 transition-all group-hover:visible group-hover:opacity-100 group-hover:translate-x-0">
+        <div
+          className="absolute left-full z-50 rounded-md px-2 py-1 ml-6 bg-indigo-100 text-indigo-800 text-sm 
+      invisible opacity-0 -translate-x-3 transition-all 
+      group-hover:visible group-hover:opacity-100 group-hover:translate-x-0 shadow-lg"
+          style={{ whiteSpace: "nowrap" }}
+        >
           {text}
         </div>
       )}
