@@ -11,6 +11,7 @@ const EditLoket = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false); // <--- Tambahkan state loading
 
   useEffect(() => {
     const getLoketDetail = async () => {
@@ -56,6 +57,8 @@ const EditLoket = () => {
       return;
     }
 
+    setLoading(true); // Mulai loading
+
     try {
       const payload = {
         name: name.trimEnd().replace(/\s{2,}/g, " "),
@@ -72,6 +75,8 @@ const EditLoket = () => {
       const errorMessage =
         error.response?.data?.message || error.message || "Terjadi kesalahan";
       setErrors((prev) => ({ ...prev, backend: errorMessage }));
+    } finally {
+      setLoading(false); // Selesai loading
     }
   };
 
@@ -155,9 +160,21 @@ const EditLoket = () => {
               </NavLink>
               <button
                 onClick={handleEditLoket}
-                className="btn bg-orange-500 text-white hover:bg-orange-600"
+                disabled={loading}
+                className={`btn text-white font-semibold ${
+                  loading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-orange-500 hover:bg-orange-600"
+                }`}
               >
-                Simpan Perubahan
+                {loading ? (
+                  <>
+                    Memproses...
+                    <span className="loading loading-spinner loading-sm ml-2"></span>
+                  </>
+                ) : (
+                  "Simpan Perubahan"
+                )}
               </button>
             </div>
           </fieldset>

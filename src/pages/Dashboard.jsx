@@ -5,12 +5,16 @@ import { Building2, User2Icon } from "lucide-react";
 import AntrianCharts from "../components/AntrianCharts";
 import TopAntrianCharts from "../components/TopAntrianCharts";
 import TopKeluhanCharts from "../components/TopKeluhanCharts";
+import ExportExcelButton from "../components/ExportExcelButton";
 import api from "../utils/api";
+import StatusCharts from "../components/StatusCharts";
+import AntrianByCSChart from "../components/AntrianByCSChart";
 
 const Dashboard = () => {
   const [cabang, setCabang] = useState([]);
   const [antrian, setAntrian] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [chartView, setChartView] = useState("daily");
 
   const getCabang = async () => {
     const response = await api.get("/branch");
@@ -71,11 +75,37 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-      <div className="flex flex-col gap-15 mt-4">
-        <AntrianCharts />
-        <div className="flex gap-10">
-          <TopAntrianCharts />
-          <TopKeluhanCharts />
+
+      <div className="flex flex-col mt-10">
+        <div className="flex justify-between items-center mb-2 flex-wrap gap-3">
+          <h2 className="text-xl font-semibold text-gray-700">
+            Grafik Aktivitas Nasabah
+          </h2>
+          <div className="flex gap-2">
+            <select
+              value={chartView}
+              onChange={(e) => setChartView(e.target.value)}
+              className="select select-bordered w-40"
+            >
+              <option value="daily">Tiap Hari</option>
+              <option value="weekly">Tiap Minggu</option>
+              <option value="monthly">Tiap Bulan</option>
+            </select>
+            <ExportExcelButton
+              data={antrian}
+              fileName="Data_Antrian"
+              sheetName="Antrian"
+            />
+          </div>
+        </div>
+
+        <AntrianCharts data={antrian} view={chartView} />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
+          <StatusCharts view={chartView} />
+          <AntrianByCSChart view={chartView} />
+          <TopAntrianCharts view={chartView} />
+          <TopKeluhanCharts view={chartView} />
         </div>
       </div>
     </Layout>

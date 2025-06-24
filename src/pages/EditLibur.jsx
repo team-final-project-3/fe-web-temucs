@@ -11,6 +11,7 @@ const EditLibur = () => {
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false); // loading state
 
   const fetchHolidayById = async () => {
     try {
@@ -36,6 +37,9 @@ const EditLibur = () => {
     const button = document.getElementById("cally1");
 
     if (calendar && button) {
+      const today = new Date().toISOString().split("T")[0];
+      calendar.setAttribute("min", today); // cegah pilih tanggal sebelum hari ini
+
       calendar.onchange = function () {
         const val = this.value;
         setDate(val);
@@ -43,7 +47,7 @@ const EditLibur = () => {
         setErrors((prev) => ({ ...prev, date: "" }));
       };
     }
-  }, []);
+  }, [date]);
 
   const handleUpdateHoliday = async (e) => {
     e.preventDefault();
@@ -56,6 +60,8 @@ const EditLibur = () => {
       setErrors(newErrors);
       return;
     }
+
+    setLoading(true);
 
     try {
       const response = await api.put(`/holiday/${id}`, {
@@ -70,6 +76,8 @@ const EditLibur = () => {
       const errorMessage =
         error.response?.data?.message || error.message || "Terjadi kesalahan";
       setErrors((prev) => ({ ...prev, backend: errorMessage }));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -139,6 +147,12 @@ const EditLibur = () => {
               </calendar-date>
             </div>
 
+            {errors.backend && (
+              <p className="text-center text-red-600 font-medium mt-4">
+                {errors.backend}
+              </p>
+            )}
+
             <div className="flex justify-center gap-5">
               <button
                 className="btn bg-white border-orange-500 mt-6 text-orange-300 font-semibold"
@@ -147,10 +161,22 @@ const EditLibur = () => {
                 Batalkan
               </button>
               <button
-                className="btn bg-orange-500 mt-6 text-white font-semibold"
+                className={`btn mt-6 text-white font-semibold ${
+                  loading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-orange-500 hover:bg-orange-600"
+                }`}
                 onClick={handleUpdateHoliday}
+                disabled={loading}
               >
-                Simpan
+                {loading ? (
+                  <>
+                    Menyimpan...
+                    <span className="loading loading-spinner loading-sm ml-2"></span>
+                  </>
+                ) : (
+                  "Simpan"
+                )}
               </button>
             </div>
           </fieldset>

@@ -32,11 +32,10 @@ const EditDokumen = () => {
 
   const handleEditDocument = async (e) => {
     e.preventDefault();
-    console.log(id);
-
     const newErrors = {};
+    const cleanedDocument = document.trim().replace(/\s{2,}/g, " ");
 
-    if (!document.trim()) {
+    if (!cleanedDocument) {
       newErrors.documentName = "Nama dokumen tidak boleh kosong.";
     }
 
@@ -49,29 +48,26 @@ const EditDokumen = () => {
 
     try {
       const allDocs = await api.get("/document/user");
-
       const isDuplicate = allDocs.data.find(
         (doc) =>
           doc.documentName &&
-          doc.documentName.toLowerCase() === document.trim().toLowerCase() &&
+          doc.documentName.toLowerCase() === cleanedDocument.toLowerCase() &&
           doc.id.toString() !== id
       );
 
       if (isDuplicate) {
-        newErrors.documentName =
-          "Nama dokumen sudah digunakan oleh dokumen lain.";
-        setErrors(newErrors);
+        setErrors({
+          documentName: "Nama dokumen sudah digunakan oleh dokumen lain.",
+        });
         setLoading(false);
         return;
       }
 
-      console.log(id);
-
-      const updateResponse = await api.put(`/document/${id}`, {
-        documentName: document.trim(),
+      await api.put(`/document/${id}`, {
+        documentName: cleanedDocument,
+        updatedBy: data?.username || "Unknown",
       });
 
-      console.log("Dokumen berhasil diperbarui:", updateResponse.data);
       navigate("/dokumen");
     } catch (error) {
       console.error("Gagal memperbarui dokumen:", error);
@@ -93,15 +89,19 @@ const EditDokumen = () => {
             <label className="label">Nama Dokumen</label>
             <input
               type="text"
-              className="input w-full"
+              className={`input w-full ${
+                errors.documentName ? "border-red-500" : ""
+              }`}
               placeholder="Nama Dokumen"
               value={document}
               onChange={(e) => {
                 setDocument(e.target.value);
                 setErrors((prev) => ({ ...prev, documentName: "" }));
               }}
+              onBlur={(e) =>
+                setDocument(e.target.value.trim().replace(/\s{2,}/g, " "))
+              }
             />
-
             {errors.documentName && (
               <span className="text-sm text-red-500">
                 {errors.documentName}

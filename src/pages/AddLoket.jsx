@@ -12,6 +12,7 @@ const AddLoket = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const hasNoSpaces = (value) => /^\S+$/.test(value);
 
@@ -37,6 +38,8 @@ const AddLoket = () => {
       return;
     }
 
+    setLoading(true);
+
     try {
       const payload = {
         branchId: numericId,
@@ -54,6 +57,8 @@ const AddLoket = () => {
       const errorMessage =
         error.response?.data?.message || error.message || "Terjadi kesalahan";
       setErrors((prev) => ({ ...prev, backend: errorMessage }));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -137,9 +142,21 @@ const AddLoket = () => {
               </NavLink>
               <button
                 onClick={handleAddLoket}
-                className="btn bg-orange-500 mt-4 text-white font-semibold"
+                disabled={loading}
+                className={`btn mt-4 text-white font-semibold ${
+                  loading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-orange-500 hover:bg-orange-600"
+                }`}
               >
-                Tambah
+                {loading ? (
+                  <>
+                    Memproses...
+                    <span className="loading loading-spinner loading-sm ml-2"></span>
+                  </>
+                ) : (
+                  "Tambah"
+                )}
               </button>
             </div>
           </fieldset>

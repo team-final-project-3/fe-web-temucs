@@ -10,6 +10,7 @@ const AddCabang = () => {
   const [longitude, setLongitude] = useState("");
   const [latitude, setLatitude] = useState("");
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -45,6 +46,8 @@ const AddCabang = () => {
       return;
     }
 
+    setLoading(true); // Mulai loading
+
     try {
       const dataCabang = {
         name: nama.trim().replace(/\s{2,}/g, " "),
@@ -67,6 +70,8 @@ const AddCabang = () => {
       const errorMessage =
         error.response?.data?.message || error.message || "Terjadi kesalahan";
       setErrors((prev) => ({ ...prev, backend: errorMessage }));
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -176,9 +181,12 @@ const AddCabang = () => {
               </NavLink>
               <button
                 onClick={handleAddCabang}
-                className="btn bg-orange-500 mt-6 text-white font-semibold"
+                disabled={loading}
+                className={`btn mt-6 text-white font-semibold ${
+                  loading ? "bg-orange-300 cursor-not-allowed" : "bg-orange-500"
+                }`}
               >
-                Tambah
+                {loading ? "Loading..." : "Tambah"}
               </button>
             </div>
           </fieldset>

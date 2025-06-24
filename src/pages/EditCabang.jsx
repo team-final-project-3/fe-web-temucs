@@ -13,6 +13,7 @@ const EditCabang = () => {
   const [longitude, setLongitude] = useState("");
   const [latitude, setLatitude] = useState("");
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchCabang = async () => {
@@ -58,6 +59,8 @@ const EditCabang = () => {
       return;
     }
 
+    setLoading(true);
+
     try {
       const updatedData = {
         name: nama.trim(),
@@ -75,6 +78,8 @@ const EditCabang = () => {
       const errorMessage =
         error.response?.data?.message || error.message || "Terjadi kesalahan";
       setErrors((prev) => ({ ...prev, backend: errorMessage }));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -131,22 +136,6 @@ const EditCabang = () => {
               <p className="text-red-500 text-sm">{errors.address}</p>
             )}
 
-            <label className="label">Longitude Cabang</label>
-            <input
-              type="text"
-              className={`input w-full ${
-                errors.longitude ? "border-red-500" : ""
-              }`}
-              value={longitude}
-              onChange={(e) => {
-                setLongitude(e.target.value);
-                setErrors((prev) => ({ ...prev, longitude: "" }));
-              }}
-            />
-            {errors.longitude && (
-              <p className="text-red-500 text-sm">{errors.longitude}</p>
-            )}
-
             <label className="label">Latitude Cabang</label>
             <input
               type="text"
@@ -161,6 +150,22 @@ const EditCabang = () => {
             />
             {errors.latitude && (
               <p className="text-red-500 text-sm">{errors.latitude}</p>
+            )}
+
+            <label className="label">Longitude Cabang</label>
+            <input
+              type="text"
+              className={`input w-full ${
+                errors.longitude ? "border-red-500" : ""
+              }`}
+              value={longitude}
+              onChange={(e) => {
+                setLongitude(e.target.value);
+                setErrors((prev) => ({ ...prev, longitude: "" }));
+              }}
+            />
+            {errors.longitude && (
+              <p className="text-red-500 text-sm">{errors.longitude}</p>
             )}
 
             {errors.backend && (
@@ -178,9 +183,12 @@ const EditCabang = () => {
               </NavLink>
               <button
                 onClick={handleUpdateCabang}
-                className="btn bg-orange-500 mt-6 text-white font-semibold"
+                disabled={loading}
+                className={`btn mt-6 text-white font-semibold ${
+                  loading ? "bg-orange-300 cursor-not-allowed" : "bg-orange-500"
+                }`}
               >
-                Simpan
+                {loading ? "Loading..." : "Simpan"}
               </button>
             </div>
           </fieldset>

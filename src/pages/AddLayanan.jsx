@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
 import api from "../utils/api";
-import { useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 const AddLayanan = () => {
   const [serviceName, setServiceName] = useState("");
@@ -9,13 +9,14 @@ const AddLayanan = () => {
   const [documents, setDocuments] = useState([]);
   const [selectedDocuments, setSelectedDocuments] = useState([]);
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchDocuments = async () => {
       try {
-        const response = await api.get("/document");
+        const response = await api.get("/document/user");
         setDocuments(response.data);
       } catch (error) {
         console.error("Gagal mengambil dokumen:", error.message);
@@ -54,8 +55,10 @@ const AddLayanan = () => {
       return;
     }
 
+    setLoading(true);
+
     try {
-      const serviceList = await api.get("/service");
+      const serviceList = await api.get("/service/user");
       const existing = serviceList.data.find(
         (svc) =>
           svc.serviceName &&
@@ -64,6 +67,7 @@ const AddLayanan = () => {
 
       if (existing) {
         setErrors({ serviceName: "Nama layanan sudah ada" });
+        setLoading(false);
         return;
       }
 
@@ -84,6 +88,8 @@ const AddLayanan = () => {
       const errorMessage =
         error.response?.data?.message || error.message || "Terjadi kesalahan";
       setErrors((prev) => ({ ...prev, backend: errorMessage }));
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -107,12 +113,11 @@ const AddLayanan = () => {
                 setErrors((prev) => ({ ...prev, serviceName: "" }));
               }}
             />
-
             {errors.serviceName && (
               <span className="text-sm text-red-500">{errors.serviceName}</span>
             )}
 
-            <label className="label mt-4">Estimasi Waktu (menit)</label>
+            <label className="label">Estimasi Waktu (menit)</label>
             <input
               type="number"
               className={`input w-full mb-1 ${
@@ -125,15 +130,23 @@ const AddLayanan = () => {
                 setErrors((prev) => ({ ...prev, estimateTime: "" }));
               }}
             />
-
             {errors.estimateTime && (
               <span className="text-sm text-red-500">
                 {errors.estimateTime}
               </span>
             )}
 
-            <div className="mb-4">
-              <label className="label mb-2">Dokumen Terkait</label>
+            <div className="my-4">
+              <div className="flex justify-between items-center w-full">
+                <label className="label mb-2">Dokumen Terkait</label>
+
+                <div className="mb-4">
+                  <p className="text-orange-600">Tidak menemukan dokumen?</p>
+                  <NavLink to={"/dokumen"} className="text-blue-600 italic">
+                    tambah dokumen
+                  </NavLink>
+                </div>
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
                 {documents.map((doc) => (
                   <label key={doc.id} className="flex items-center gap-2">
@@ -169,15 +182,19 @@ const AddLayanan = () => {
                   setEstimateTime("");
                   setSelectedDocuments([]);
                   setErrors({});
+                  navigate("/layanan");
                 }}
               >
                 Batalkan
               </button>
               <button
-                className="btn bg-orange-500 mt-4 text-white font-semibold"
+                className={`btn mt-4 text-white font-semibold ${
+                  loading ? "bg-orange-300 cursor-not-allowed" : "bg-orange-500"
+                }`}
+                disabled={loading}
                 onClick={handleSubmit}
               >
-                Tambah
+                {loading ? "Loading..." : "Tambah"}
               </button>
             </div>
           </fieldset>

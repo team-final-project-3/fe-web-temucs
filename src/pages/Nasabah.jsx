@@ -3,34 +3,15 @@ import Layout from "../components/Layout";
 import api from "../utils/api";
 
 const Nasabah = () => {
-  const [activeTab, setActiveTab] = useState("online");
-  const [search, setSearch] = useState("");
+  const [nasabahList, setNasabahList] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [nasabahData, setNasabahData] = useState({
-    online: [],
-    offline: [],
-  });
 
-  const ambilNasabah = async () => {
+  const fetchNasabah = async () => {
     try {
-      const response = await api.get("/users/");
-      console.log(response.data);
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const getAllNasabah = async () => {
-    try {
-      const response = await api.get("/queue");
-      const allNasabah = response.data.data;
-
-      console.log(response.data);
-
-      const offline = allNasabah.filter((item) => item.loketId != null);
-      const online = allNasabah.filter((item) => item.loketId == null);
-
-      setNasabahData({ online, offline });
+      const response = await api.get("/users");
+      const data = response.data?.data || [];
+      console.log(data);
+      setNasabahList(data);
     } catch (error) {
       console.error("Gagal mengambil data nasabah:", error);
     } finally {
@@ -39,105 +20,56 @@ const Nasabah = () => {
   };
 
   useEffect(() => {
-    getAllNasabah();
-    ambilNasabah();
+    fetchNasabah();
   }, []);
-
-  const filteredData =
-    nasabahData[activeTab]?.filter((item) =>
-      (item.name || "").toLowerCase().includes(search.toLowerCase())
-    ) || [];
 
   return (
     <Layout>
       <div className="min-h-screen">
         <h2 className="text-2xl font-semibold my-3">LIHAT NASABAH</h2>
 
-        <div className="p-4 bg-white rounded-lg shadow">
-          <div className="flex justify-between items-center flex-wrap gap-2">
-            <div role="tablist" className="tabs tabs-lift mb-4">
-              <button
-                role="tab"
-                className={`tab ${
-                  activeTab === "online"
-                    ? "bg-orange-500 !text-white border-orange-500 shadow"
-                    : ""
-                }`}
-                onClick={() => setActiveTab("online")}
-                style={
-                  activeTab === "online"
-                    ? {}
-                    : { border: ".2px solid #a6a6a6", color: "#FE8B1F" }
-                }
-              >
-                ONLINE
-              </button>
-              <button
-                role="tab"
-                className={`tab ${
-                  activeTab === "offline"
-                    ? "bg-orange-500 !text-white border-orange-500 shadow"
-                    : ""
-                }`}
-                onClick={() => setActiveTab("offline")}
-                style={
-                  activeTab === "offline"
-                    ? {}
-                    : { border: ".2px solid #a6a6a6", color: "#FE8B1F" }
-                }
-              >
-                OFFLINE
-              </button>
-            </div>
-            <input
-              type="text"
-              placeholder="Search Nasabah"
-              className="input input-bordered w-full max-w-sm mb-4"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-
-          {loading ? (
-            <div className="text-center py-10 font-medium text-gray-600">
-              Loading...
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="table w-full">
+        <div className="bg-base-100 rounded-lg shadow p-4 border-2 border-gray-300">
+          <div className="overflow-x-auto">
+            {loading ? (
+              <div className="text-center py-10 font-medium text-gray-600">
+                Loading...
+              </div>
+            ) : (
+              <table className="table table-zebra w-full">
                 <thead>
                   <tr>
                     <th>No</th>
-                    <th>Name</th>
+                    <th>Fullname</th>
+                    <th>Username</th>
                     <th>Email</th>
                     <th>No HP</th>
-                    <th>Cabang</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredData.length > 0 ? (
-                    filteredData.map((item, index) => (
-                      <tr key={item.id}>
+                  {nasabahList.length > 0 ? (
+                    nasabahList.map((user, index) => (
+                      <tr key={user.id}>
                         <td>{index + 1}</td>
-                        <td>{item.name || "-"}</td>
-                        <td>{item.user?.email || "-"}</td>
-                        <td>{item.user?.phoneNumber || "-"}</td>
-                        <td>{item.branch?.name || "-"}</td>
+                        <td>{user.fullname || "-"}</td>
+                        <td>{user.username || "-"}</td>
+                        <td>{user.email || "-"}</td>
+                        <td>{user.phoneNumber || "-"}</td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="5" className="text-center text-gray-400">
-                        {activeTab === "online"
-                          ? "Tidak ada data pengunjung online."
-                          : "Tidak ada data pengunjung offline."}
+                      <td
+                        colSpan="6"
+                        className="text-center py-4 text-gray-600"
+                      >
+                        Tidak ada data nasabah yang ditemukan.
                       </td>
                     </tr>
                   )}
                 </tbody>
               </table>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </Layout>
