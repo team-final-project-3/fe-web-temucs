@@ -16,6 +16,12 @@ const DetailCabang = () => {
   const navigate = useNavigate();
   const numericId = parseInt(id, 10);
 
+  useEffect(() => {
+    if (!/^\d+$/.test(id)) {
+      navigate("/not-found");
+    }
+  }, [id, navigate]);
+
   const getBranchDetail = async () => {
     try {
       const response = await api.get(`/branch/${numericId}`);

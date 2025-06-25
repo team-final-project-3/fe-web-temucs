@@ -14,6 +14,12 @@ const EditLoket = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (!/^\d+$/.test(loketId)) {
+      navigate("/not-found");
+    }
+  }, [loketId, navigate]);
+
+  useEffect(() => {
     const getLoketDetail = async () => {
       try {
         const response = await api.get(`/branch/${branchId}`);

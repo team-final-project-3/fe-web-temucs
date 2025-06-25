@@ -13,6 +13,12 @@ const EditCS = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (!/^\d+$/.test(csId)) {
+      navigate("/not-found");
+    }
+  }, [csId, navigate]);
+
   const hasNoSpaces = (value) => /^\S+$/.test(value);
 
   const getCSDetail = async () => {

@@ -16,6 +16,12 @@ const EditCabang = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    if (!/^\d+$/.test(id)) {
+      navigate("/not-found");
+    }
+  }, [id, navigate]);
+
+  useEffect(() => {
     const fetchCabang = async () => {
       try {
         const res = await api.get(`/branch/${id}`);

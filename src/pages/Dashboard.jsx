@@ -13,6 +13,10 @@ import AntrianByCSChart from "../components/AntrianByCSChart";
 const Dashboard = () => {
   const [cabang, setCabang] = useState([]);
   const [antrian, setAntrian] = useState([]);
+  const [statusData, setStatusData] = useState([]);
+  const [csData, setCsData] = useState([]);
+  const [topAntrianData, setTopAntrianData] = useState([]);
+  const [topKeluhanData, setTopKeluhanData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [chartView, setChartView] = useState("daily");
 
@@ -92,9 +96,12 @@ const Dashboard = () => {
               <option value="monthly">Tiap Bulan</option>
             </select>
             <ExportExcelButton
-              data={antrian}
-              fileName="Data_Antrian"
-              sheetName="Antrian"
+              antrianData={antrian}
+              statusData={statusData}
+              csData={csData}
+              topAntrianData={topAntrianData}
+              topKeluhanData={topKeluhanData}
+              fileName="Dashboard_Antrian"
             />
           </div>
         </div>
@@ -102,10 +109,10 @@ const Dashboard = () => {
         <AntrianCharts data={antrian} view={chartView} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
-          <StatusCharts view={chartView} />
-          <AntrianByCSChart view={chartView} />
-          <TopAntrianCharts view={chartView} />
-          <TopKeluhanCharts view={chartView} />
+          <StatusCharts view={chartView} onDataReady={setStatusData} />
+          <AntrianByCSChart view={chartView} onDataReady={setCsData} />
+          <TopAntrianCharts view={chartView} onDataReady={setTopAntrianData} />
+          <TopKeluhanCharts view={chartView} onDataReady={setTopKeluhanData} />
         </div>
       </div>
     </Layout>

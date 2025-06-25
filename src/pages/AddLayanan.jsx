@@ -26,20 +26,32 @@ const AddLayanan = () => {
     fetchDocuments();
   }, []);
 
-  const handleCheckboxChange = (id) => {
-    setSelectedDocuments((prev) =>
-      prev.includes(id) ? prev.filter((docId) => docId !== id) : [...prev, id]
-    );
+  const handleCheckboxChange = (doc) => {
+    setSelectedDocuments((prev) => {
+      const exists = prev.find((d) => d.documentId === doc.id);
+      if (exists) {
+        return prev.filter((d) => d.documentId !== doc.id);
+      } else {
+        return [...prev, { documentId: doc.id, quantity: 1 }];
+      }
+    });
     setErrors((prev) => ({ ...prev, selectedDocuments: "" }));
+  };
+
+  const handleQuantityChange = (docId, value) => {
+    const qty = Math.max(1, parseInt(value) || 1);
+    setSelectedDocuments((prev) =>
+      prev.map((d) => (d.documentId === docId ? { ...d, quantity: qty } : d))
+    );
   };
 
   const handleSubmit = async () => {
     const newErrors = {};
     const cleanedServiceName = serviceName.trim().replace(/\s{2,}/g, " ");
+    const parsedTime = parseInt(estimateTime);
 
     if (!cleanedServiceName) newErrors.serviceName = "Nama layanan harus diisi";
 
-    const parsedTime = parseInt(estimateTime);
     if (!estimateTime.trim()) {
       newErrors.estimateTime = "Estimasi waktu harus diisi";
     } else if (isNaN(parsedTime) || parsedTime <= 0) {
@@ -48,6 +60,14 @@ const AddLayanan = () => {
 
     if (selectedDocuments.length === 0) {
       newErrors.selectedDocuments = "Pilih minimal satu dokumen";
+    } else {
+      const invalidDocs = selectedDocuments.filter(
+        (d) => d.quantity <= 0 || isNaN(d.quantity)
+      );
+      if (invalidDocs.length > 0) {
+        newErrors.selectedDocuments =
+          "Jumlah dokumen tidak valid. Untuk 'materai', isi jumlah lebih dari 0.";
+      }
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -74,7 +94,7 @@ const AddLayanan = () => {
       const payload = {
         serviceName: cleanedServiceName,
         estimatedTime: parsedTime,
-        documentIds: selectedDocuments,
+        documents: selectedDocuments,
       };
 
       await api.post("/service", payload);
@@ -148,17 +168,37 @@ const AddLayanan = () => {
                 </div>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                {documents.map((doc) => (
-                  <label key={doc.id} className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      className="checkbox checkbox-warning"
-                      checked={selectedDocuments.includes(doc.id)}
-                      onChange={() => handleCheckboxChange(doc.id)}
-                    />
-                    <span>{doc.documentName}</span>
-                  </label>
-                ))}
+                {documents.map((doc) => {
+                  const selectedDoc = selectedDocuments.find(
+                    (d) => d.documentId === doc.id
+                  );
+                  const isMaterai = doc.documentName
+                    .toLowerCase()
+                    .includes("materai");
+
+                  return (
+                    <div key={doc.id} className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-warning"
+                        checked={!!selectedDoc}
+                        onChange={() => handleCheckboxChange(doc)}
+                      />
+                      <span>{doc.documentName}</span>
+                      {selectedDoc && isMaterai && (
+                        <input
+                          type="number"
+                          min="1"
+                          className="input input-bordered input-sm w-20 ml-2"
+                          value={selectedDoc.quantity}
+                          onChange={(e) =>
+                            handleQuantityChange(doc.id, e.target.value)
+                          }
+                        />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
 
               {errors.selectedDocuments && (

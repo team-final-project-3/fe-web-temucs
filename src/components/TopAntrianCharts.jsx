@@ -11,7 +11,7 @@ import {
 } from "recharts";
 import api from "../utils/api";
 
-const TopAntrianCharts = ({ view, onDataUpdate }) => {
+const TopAntrianCharts = ({ view, onDataReady }) => {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -54,7 +54,7 @@ const TopAntrianCharts = ({ view, onDataUpdate }) => {
         }));
         const top5 = merged.sort((a, b) => b.value - a.value).slice(0, 5);
         setChartData(top5);
-        onDataUpdate?.(top5);
+        if (onDataReady) onDataReady(top5);
       } catch (error) {
         console.error("Error loading chart data:", error);
       } finally {
