@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import temuCSLong from "../../public/images/temuCS_long.png";
 import { ChevronFirst, ChevronLast, LogOut } from "lucide-react";
 import SidebarContext from "./SidebarContext";
@@ -10,6 +10,21 @@ const Sidebar = ({ children }) => {
   const [expanded, setExpanded] = useState(true);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setExpanded(false);
+      } else {
+        setExpanded(true);
+      }
+    };
+
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");

@@ -13,6 +13,12 @@ const EditLibur = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
+  useEffect(() => {
+    if (!/^\d+$/.test(id)) {
+      navigate("/not-found");
+    }
+  }, [id, navigate]);
+
   const fetchHolidayById = async () => {
     try {
       const res = await api.get(`/holiday/${id}`);

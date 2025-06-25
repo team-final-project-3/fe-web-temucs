@@ -4,7 +4,7 @@ import api from "../utils/api";
 
 const COLORS = ["#7D3C98", "#3498DB", "#F1C40F", "#E67E22", "#2ECC71"];
 
-const StatusCharts = ({ view, onDataUpdate }) => {
+const StatusCharts = ({ view, onDataReady }) => {
   const [statusData, setStatusData] = useState([]);
 
   const filterByView = (data) => {
@@ -46,7 +46,7 @@ const StatusCharts = ({ view, onDataUpdate }) => {
         value,
       }));
       setStatusData(formatted);
-      onDataUpdate?.(formatted);
+      if (onDataReady) onDataReady(formatted);
     } catch (error) {
       console.error("Gagal mengambil data status antrian:", error);
     }

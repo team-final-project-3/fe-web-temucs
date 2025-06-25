@@ -11,7 +11,7 @@ import {
 } from "recharts";
 import api from "../utils/api";
 
-const TopKeluhanCharts = ({ view, onDataUpdate }) => {
+const TopKeluhanCharts = ({ view, onDataReady }) => {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -56,7 +56,7 @@ const TopKeluhanCharts = ({ view, onDataUpdate }) => {
           .slice(0, 5);
 
         setChartData(top5);
-        onDataUpdate?.(top5);
+        if (onDataReady) onDataReady(top5);
       } catch (error) {
         console.error("Gagal fetch data keluhan:", error);
       } finally {

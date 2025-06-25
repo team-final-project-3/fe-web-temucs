@@ -1,35 +1,22 @@
 import React, { useEffect, useState } from "react";
 import Layout from "../components/Layout";
-import { NavLink, useParams } from "react-router-dom";
+import { NavLink, useNavigate, useParams } from "react-router-dom";
 import api from "../utils/api";
 import formatDate from "../utils/formatDate";
 
 const DetailLayanan = () => {
-  const dokumenLayanan = [
-    {
-      id: 1,
-      name: "KTP",
-      updatedBy: "Suisei",
-      updatedAt: "10-06-2025",
-    },
-    {
-      id: 2,
-      name: "NPWP",
-      updatedBy: "Suisei",
-      updatedAt: "10-06-2025",
-    },
-    {
-      id: 3,
-      name: "Berita Acara Polisi",
-      updatedBy: "Windah",
-      updatedAt: "10-06-2025",
-    },
-  ];
-
   const [serviceDetail, setServiceDetail] = useState([]);
   const [serviceDocument, setServiceDocument] = useState([]);
 
   const { id } = useParams();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!/^\d+$/.test(id)) {
+      navigate("/not-found");
+    }
+  }, [id, navigate]);
+
   const getDetailLayanan = async () => {
     try {
       const response = await api.get(`/service/${id}`);
@@ -60,6 +47,7 @@ const DetailLayanan = () => {
                 <tr>
                   <th>Number</th>
                   <th>Name</th>
+                  <th>Quantity</th>
                   <th>Updated By</th>
                   <th>Updated At</th>
                 </tr>
@@ -69,6 +57,7 @@ const DetailLayanan = () => {
                   <tr key={detailLayanan.id}>
                     <td>{index + 1}</td>
                     <td>{detailLayanan.documentName}</td>
+                    <td>{detailLayanan.quantity}</td>{" "}
                     <td>{detailLayanan.updatedBy}</td>
                     <td>{formatDate(detailLayanan.updatedAt)}</td>
                   </tr>

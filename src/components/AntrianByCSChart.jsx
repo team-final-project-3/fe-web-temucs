@@ -11,7 +11,7 @@ import {
 } from "recharts";
 import api from "../utils/api";
 
-const AntrianByCSChart = ({ view, onDataUpdate }) => {
+const AntrianByCSChart = ({ view, onDataReady }) => {
   const [data, setData] = useState([]);
 
   const filterByView = (data) => {
@@ -55,7 +55,7 @@ const AntrianByCSChart = ({ view, onDataUpdate }) => {
       }));
 
       setData(chartData);
-      onDataUpdate?.(chartData);
+      if (onDataReady) onDataReady(chartData);
     } catch (error) {
       console.error("Gagal memuat data antrian per CS:", error);
     }

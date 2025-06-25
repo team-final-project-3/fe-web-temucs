@@ -11,6 +11,12 @@ const EditDokumen = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (!/^\d+$/.test(id)) {
+      navigate("/not-found");
+    }
+  }, [id, navigate]);
+
   const data = jwtDecode(localStorage.getItem("token"));
 
   useEffect(() => {

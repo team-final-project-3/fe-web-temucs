@@ -29,7 +29,14 @@ const EditLayanan = () => {
       const data = response.data;
       setServiceName(data.serviceName);
       setEstimateTime(data.estimatedTime.toString());
-      setSelectedDocuments(data.documents.map((doc) => doc.id));
+      setSelectedDocuments(
+        data.documents.map((doc) => ({
+          documentId: doc.id,
+          quantity: doc.documentName.toLowerCase().includes("materai")
+            ? doc.quantity || 1
+            : 1,
+        }))
+      );
     } catch (error) {
       console.error("Gagal mengambil detail layanan:", error);
     }
@@ -40,24 +47,49 @@ const EditLayanan = () => {
     fetchServiceDetail();
   }, []);
 
-  const handleCheckboxChange = (id) => {
+  const handleCheckboxChange = (doc) => {
+    setSelectedDocuments((prev) => {
+      const exists = prev.find((d) => d.documentId === doc.id);
+      if (exists) {
+        return prev.filter((d) => d.documentId !== doc.id);
+      } else {
+        return [...prev, { documentId: doc.id, quantity: 1 }];
+      }
+    });
+
+    setErrors((prev) => ({ ...prev, documents: "" }));
+  };
+
+  const handleQuantityChange = (docId, value) => {
+    const qty = Math.max(1, parseInt(value) || 1);
     setSelectedDocuments((prev) =>
-      prev.includes(id) ? prev.filter((docId) => docId !== id) : [...prev, id]
+      prev.map((d) => (d.documentId === docId ? { ...d, quantity: qty } : d))
     );
   };
 
   const handleSubmit = async () => {
     const newErrors = {};
+    const cleanedServiceName = serviceName.trim().replace(/\s{2,}/g, " ");
+    const parsedTime = parseInt(estimateTime);
 
-    if (!serviceName.trim()) newErrors.serviceName = "Nama layanan wajib diisi";
+    if (!cleanedServiceName) newErrors.serviceName = "Nama layanan wajib diisi";
+
     if (!estimateTime.trim()) {
       newErrors.estimateTime = "Estimasi waktu wajib diisi";
-    } else if (isNaN(estimateTime) || parseInt(estimateTime) <= 0) {
-      newErrors.estimateTime = "Estimasi waktu harus berupa angka positif";
+    } else if (isNaN(parsedTime) || parsedTime <= 0) {
+      newErrors.estimateTime = "Harus berupa angka lebih dari 0";
     }
 
     if (selectedDocuments.length === 0) {
       newErrors.documents = "Pilih minimal satu dokumen";
+    } else {
+      const invalidDocs = selectedDocuments.filter(
+        (d) => d.quantity <= 0 || isNaN(d.quantity)
+      );
+      if (invalidDocs.length > 0) {
+        newErrors.documents =
+          "Jumlah dokumen tidak valid. Untuk 'materai', isi jumlah lebih dari 0.";
+      }
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -66,9 +98,9 @@ const EditLayanan = () => {
     }
 
     const payload = {
-      serviceName: serviceName.trim(),
-      estimatedTime: parseInt(estimateTime),
-      documentIds: selectedDocuments,
+      serviceName: cleanedServiceName,
+      estimatedTime: parsedTime,
+      documents: selectedDocuments,
       updatedBy: "admin",
     };
 
@@ -130,17 +162,37 @@ const EditLayanan = () => {
             <div className="mb-4 mt-4">
               <label className="label mb-2">Dokumen Terkait</label>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                {documents.map((doc) => (
-                  <label key={doc.id} className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      className="checkbox checkbox-warning"
-                      checked={selectedDocuments.includes(doc.id)}
-                      onChange={() => handleCheckboxChange(doc.id)}
-                    />
-                    <span>{doc.documentName}</span>
-                  </label>
-                ))}
+                {documents.map((doc) => {
+                  const selectedDoc = selectedDocuments.find(
+                    (d) => d.documentId === doc.id
+                  );
+                  const isMaterai = doc.documentName
+                    .toLowerCase()
+                    .includes("materai");
+
+                  return (
+                    <div key={doc.id} className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        className="checkbox checkbox-warning"
+                        checked={!!selectedDoc}
+                        onChange={() => handleCheckboxChange(doc)}
+                      />
+                      <span>{doc.documentName}</span>
+                      {selectedDoc && isMaterai && (
+                        <input
+                          type="number"
+                          min="1"
+                          className="input input-bordered input-sm w-20 ml-2"
+                          value={selectedDoc.quantity}
+                          onChange={(e) =>
+                            handleQuantityChange(doc.id, e.target.value)
+                          }
+                        />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
               {errors.documents && (
                 <p className="text-red-500 text-sm mt-1">{errors.documents}</p>
