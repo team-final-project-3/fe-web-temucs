@@ -1,23 +1,36 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Navbar from "./Navbar";
 import Sidebar from "./Sidebar";
-import {
-  Building2,
-  Users,
-  CalendarPlus,
-  NotebookText,
-  BookUser,
-  UserRoundCog,
-  House,
-  LogOut,
-  FileText,
-} from "lucide-react";
 import SidebarItem from "./SidebarItem";
 import Breadcrumbs from "./Breadcrumbs";
 import Footer from "./Footer";
 import DayDate from "./DayDate";
+import NotDesktop from "../pages/NotDesktop";
+import {
+  Building2,
+  CalendarPlus,
+  NotebookText,
+  BookUser,
+  House,
+  FileText,
+} from "lucide-react";
 
 const Layout = ({ children }) => {
+  const [isDesktop, setIsDesktop] = useState(window.innerWidth >= 1024);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  if (!isDesktop) {
+    return <NotDesktop />;
+  }
+
   return (
     <div className="flex min-h-screen overflow-hidden">
       <Sidebar>

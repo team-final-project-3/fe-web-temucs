@@ -7,21 +7,35 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
 const Sidebar = ({ children }) => {
-  const [expanded, setExpanded] = useState(true);
+  const [expanded, setExpanded] = useState(() => {
+    const stored = localStorage.getItem("sidebar_expanded");
+    return stored !== null ? JSON.parse(stored) : window.innerWidth >= 1300;
+  });
+
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
+    localStorage.setItem("sidebar_expanded", JSON.stringify(expanded));
+  }, [expanded]);
+
+  useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 768) {
+      const width = window.innerWidth;
+
+      if (width >= 1024 && width < 1300) {
         setExpanded(false);
       } else {
-        setExpanded(true);
+        const stored = localStorage.getItem("sidebar_expanded");
+        if (stored !== null) {
+          setExpanded(JSON.parse(stored));
+        } else {
+          setExpanded(width >= 1300);
+        }
       }
     };
 
     handleResize();
-
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
@@ -31,7 +45,10 @@ const Sidebar = ({ children }) => {
     navigate("/");
   };
 
-  const data = jwtDecode(localStorage.getItem("token"));
+  const token = localStorage.getItem("token");
+  const data = token
+    ? jwtDecode(token)
+    : { fullname: "Admin", email: "admin@example.com" };
 
   return (
     <>

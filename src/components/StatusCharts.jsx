@@ -2,7 +2,14 @@ import React, { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import api from "../utils/api";
 
-const COLORS = ["#7D3C98", "#3498DB", "#F1C40F", "#E67E22", "#2ECC71"];
+const COLORS = [
+  "#7D3C98",
+  "#3498DB",
+  "#F1C40F",
+  "#E67E22",
+  "#2ECC71",
+  "#9B59B6",
+];
 
 const StatusCharts = ({ view, onDataReady }) => {
   const [statusData, setStatusData] = useState([]);

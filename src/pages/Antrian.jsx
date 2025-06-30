@@ -181,6 +181,8 @@ const Antrian = () => {
                                   ? "bg-blue-100 text-blue-700"
                                   : item.status === "skipped"
                                   ? "bg-gray-200 text-gray-700"
+                                  : item.status === "called"
+                                  ? "bg-purple-100 text-purple-700"
                                   : "bg-gray-100 text-gray-500"
                               }`}
                             >
