@@ -2,14 +2,14 @@ import React, { useEffect, useState } from "react";
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import api from "../utils/api";
 
-const COLORS = [
-  "#7D3C98",
-  "#3498DB",
-  "#F1C40F",
-  "#E67E22",
-  "#2ECC71",
-  "#9B59B6",
-];
+const STATUS_COLORS = {
+  done: "#2ECC71",
+  "in progress": "#F1C40F",
+  canceled: "#E74C3C",
+  waiting: "#3498DB",
+  skipped: "#95A5A6",
+  called: "#9B59B6",
+};
 
 const StatusCharts = ({ view, onDataReady }) => {
   const [statusData, setStatusData] = useState([]);
@@ -43,6 +43,7 @@ const StatusCharts = ({ view, onDataReady }) => {
         done: 0,
         "in progress": 0,
         waiting: 0,
+        called: 0,
       };
       filtered.forEach((item) => {
         const status = item.status?.toLowerCase();
@@ -83,7 +84,10 @@ const StatusCharts = ({ view, onDataReady }) => {
               labelLine={false}
             >
               {statusData.map((entry, index) => (
-                <Cell key={index} fill={COLORS[index % COLORS.length]} />
+                <Cell
+                  key={index}
+                  fill={STATUS_COLORS[entry.name.toLowerCase()] || "#BDC3C7"}
+                />
               ))}
             </Pie>
             <Tooltip />
@@ -99,7 +103,10 @@ const StatusCharts = ({ view, onDataReady }) => {
           <div key={index} className="flex items-center space-x-2">
             <div
               className="w-3 h-3 rounded-full"
-              style={{ backgroundColor: COLORS[index % COLORS.length] }}
+              style={{
+                backgroundColor:
+                  STATUS_COLORS[entry.name.toLowerCase()] || "#BDC3C7",
+              }}
             />
             <span>{entry.name}</span>
           </div>
