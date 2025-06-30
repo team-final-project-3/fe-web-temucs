@@ -42,17 +42,21 @@ const TopAntrianCharts = ({ view, onDataReady }) => {
           api.get("/branch"),
         ]);
         const queueData = filterByView(queueRes.data.data);
-        const branchData = branchRes.data.branches;
+        const branchData = branchRes.data.data;
+
         const queueCount = {};
         queueData.forEach((item) => {
           const branchId = item.branchId;
           if (branchId) queueCount[branchId] = (queueCount[branchId] || 0) + 1;
         });
+
         const merged = branchData.map((branch) => ({
           name: branch.name,
           value: queueCount[branch.id] || 0,
         }));
+
         const top5 = merged.sort((a, b) => b.value - a.value).slice(0, 5);
+
         setChartData(top5);
         if (onDataReady) onDataReady(top5);
       } catch (error) {
@@ -67,12 +71,16 @@ const TopAntrianCharts = ({ view, onDataReady }) => {
   return (
     <div className="bg-white rounded-lg border-2 border-gray-300 shadow-md p-4 w-full h-[350px]">
       <div className="flex justify-between mb-2">
-        <h2 className="font-semibold">Top Antrian</h2>
-        <span className="text-sm text-blue-500 cursor-pointer">View All</span>
+        <h2 className="font-semibold">Top 5 Antrian</h2>
       </div>
       {loading ? (
         <p className="text-gray-500 text-sm text-center mt-10">
           Loading chart...
+        </p>
+      ) : chartData.length === 0 ? (
+        <p className="text-gray-500 text-sm text-center mt-10">
+          Tidak ada data Antrian untuk ditampilkan. (Silakan tambah data
+          terlebih dahulu.)
         </p>
       ) : (
         <ResponsiveContainer width="100%" height="80%">

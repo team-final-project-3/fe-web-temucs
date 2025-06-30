@@ -10,7 +10,6 @@ const Nasabah = () => {
     try {
       const response = await api.get("/users");
       const data = response.data?.data || [];
-      console.log(data);
       setNasabahList(data);
     } catch (error) {
       console.error("Gagal mengambil data nasabah:", error);
@@ -25,7 +24,7 @@ const Nasabah = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen">
+      <div>
         <h2 className="text-2xl font-semibold my-3">LIHAT NASABAH</h2>
 
         <div className="bg-base-100 rounded-lg shadow p-4 border-2 border-gray-300">

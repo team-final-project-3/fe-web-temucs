@@ -35,7 +35,7 @@ const TopKeluhanCharts = ({ view, onDataReady }) => {
   };
 
   useEffect(() => {
-    const fetchKeluhan = async () => {
+    const fetchLayanan = async () => {
       try {
         const response = await api.get("/queue");
         const filtered = filterByView(response.data?.data || []);
@@ -58,19 +58,18 @@ const TopKeluhanCharts = ({ view, onDataReady }) => {
         setChartData(top5);
         if (onDataReady) onDataReady(top5);
       } catch (error) {
-        console.error("Gagal fetch data keluhan:", error);
+        console.error("Gagal fetch data layanan:", error);
       } finally {
         setLoading(false);
       }
     };
-    fetchKeluhan();
+    fetchLayanan();
   }, [view]);
 
   return (
     <div className="bg-white rounded-lg shadow-md border-2 border-gray-300 p-4 w-full h-[350px]">
       <div className="flex justify-between mb-2">
-        <h2 className="font-semibold">Top Keluhan</h2>
-        <span className="text-sm text-blue-500 cursor-pointer">View All</span>
+        <h2 className="font-semibold">Top 5 Layanan</h2>
       </div>
       {loading ? (
         <p className="text-gray-500 text-sm text-center mt-10">
@@ -78,7 +77,7 @@ const TopKeluhanCharts = ({ view, onDataReady }) => {
         </p>
       ) : chartData.length === 0 ? (
         <p className="text-gray-500 text-sm text-center mt-10">
-          Tidak ada data keluhan untuk ditampilkan. (Silakan tambah data
+          Tidak ada data Layanan untuk ditampilkan. (Silakan tambah data
           terlebih dahulu.)
         </p>
       ) : (

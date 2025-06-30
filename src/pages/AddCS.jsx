@@ -51,7 +51,6 @@ const AddCS = () => {
 
       const response = await api.post("/cs/add", payload);
       navigate(`/cabang/${numericId}`);
-      console.log(response.data);
     } catch (error) {
       console.error("Gagal menambahkan CS:", error);
       const errorMessage =
@@ -64,7 +63,7 @@ const AddCS = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen">
+      <div>
         <h2 className="text-2xl font-semibold my-3">ADD CUSTOMER SERVICE</h2>
 
         <div className="bg-base-100 rounded-lg shadow p-4 border-2 border-gray-300">

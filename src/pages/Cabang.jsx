@@ -11,10 +11,18 @@ const Cabang = () => {
   const [showModal, setShowModal] = useState(false);
   const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
 
+  const [page, setPage] = useState(1);
+  const [size, setSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+
   const getCabang = async () => {
     try {
-      const response = await api.get("/branch");
-      setCabang(response.data.branches);
+      setLoading(true);
+      const response = await api.get(
+        `/branch?page=${page}&size=${size}&search=${search}`
+      );
+      setCabang(response.data.data);
+      setTotalPages(response.data.totalPages || 1);
     } catch (error) {
       console.error("Gagal mengambil data cabang:", error);
     } finally {
@@ -24,7 +32,7 @@ const Cabang = () => {
 
   useEffect(() => {
     getCabang();
-  }, []);
+  }, [page, size, search]);
 
   const confirmToggleStatus = (branch) => {
     setSelectedBranch(branch);
@@ -47,11 +55,20 @@ const Cabang = () => {
     }
   };
 
-  const filteredBranches = cabang.filter((branch) =>
-    branch.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const requestSort = (key) => {
+    let direction = "asc";
+    if (sortConfig.key === key && sortConfig.direction === "asc") {
+      direction = "desc";
+    }
+    setSortConfig({ key, direction });
+  };
 
-  const sortedBranches = [...filteredBranches].sort((a, b) => {
+  const renderSortIcon = (key) => {
+    if (sortConfig.key !== key) return "↕";
+    return sortConfig.direction === "asc" ? "↑" : "↓";
+  };
+
+  const sortedBranches = [...cabang].sort((a, b) => {
     if (!sortConfig.key) return 0;
     const aValue = a[sortConfig.key];
     const bValue = b[sortConfig.key];
@@ -67,36 +84,26 @@ const Cabang = () => {
     return 0;
   });
 
-  const requestSort = (key) => {
-    let direction = "asc";
-    if (sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc";
-    }
-    setSortConfig({ key, direction });
-  };
-
-  const renderSortIcon = (key) => {
-    if (sortConfig.key !== key) return "↕";
-    return sortConfig.direction === "asc" ? "↑" : "↓";
-  };
-
   return (
     <Layout>
-      <div className="min-h-screen">
+      <div>
         <h2 className="text-2xl font-semibold my-3">KELOLA CABANG</h2>
 
         <div className="bg-base-100 rounded-lg shadow p-4 border-2 border-gray-300">
-          <div className="flex justify-between items-center mb-4">
+          <div className="flex flex-wrap justify-between items-center mb-4 gap-2">
             <input
               type="text"
               placeholder="Cari Cabang"
               className="input input-bordered w-full max-w-xs"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1);
+              }}
             />
             <NavLink
               to={"/cabang/add-cabang"}
-              className="ml-2 px-4 py-2 font-semibold rounded text-white bg-orange-500 hover:bg-orange-600 cursor-pointer"
+              className="btn bg-orange-500 hover:bg-orange-600 text-white"
             >
               + Add
             </NavLink>
@@ -108,67 +115,111 @@ const Cabang = () => {
                 Loading...
               </div>
             ) : sortedBranches.length > 0 ? (
-              <table className="table table-zebra w-full">
-                <thead>
-                  <tr>
-                    <th>No</th>
-                    <th
-                      onClick={() => requestSort("name")}
-                      className="cursor-pointer"
-                    >
-                      Name {renderSortIcon("name")}
-                    </th>
-                    <th
-                      onClick={() => requestSort("address")}
-                      className="cursor-pointer"
-                    >
-                      Location {renderSortIcon("address")}
-                    </th>
-                    <th
-                      onClick={() => requestSort("status")}
-                      className="cursor-pointer"
-                    >
-                      Status {renderSortIcon("status")}
-                    </th>
-                    <th>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sortedBranches.map((branch, index) => (
-                    <tr key={branch.id}>
-                      <td>{index + 1}</td>
-                      <td>{branch.name}</td>
-                      <td>{branch.address}</td>
-                      <td>{branch.status ? "Aktif" : "Nonaktif"}</td>
-                      <td className="flex gap-2">
-                        <NavLink
-                          to={`/cabang/${branch.id}`}
-                          className="btn btn-sm btn-info"
-                          title="View"
-                        >
-                          👁
-                        </NavLink>
-                        <NavLink
-                          to={`/cabang/edit-cabang/${branch.id}`}
-                          className="btn btn-sm btn-warning"
-                          title="Edit"
-                        >
-                          ✏️
-                        </NavLink>
-                        <button
-                          onClick={() => confirmToggleStatus(branch)}
-                          className={`btn btn-sm ${
-                            branch.status ? "btn-error" : "btn-success"
-                          }`}
-                          title={branch.status ? "Nonaktifkan" : "Aktifkan"}
-                        >
-                          {branch.status ? "🗑️" : "✅"}
-                        </button>
-                      </td>
+              <>
+                <table className="table table-zebra w-full">
+                  <thead>
+                    <tr>
+                      <th>No</th>
+                      <th
+                        onClick={() => requestSort("name")}
+                        className="cursor-pointer"
+                      >
+                        Name {renderSortIcon("name")}
+                      </th>
+                      <th
+                        onClick={() => requestSort("address")}
+                        className="cursor-pointer"
+                      >
+                        Location {renderSortIcon("address")}
+                      </th>
+                      <th
+                        onClick={() => requestSort("status")}
+                        className="cursor-pointer"
+                      >
+                        Status {renderSortIcon("status")}
+                      </th>
+                      <th>Action</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {sortedBranches.map((branch, index) => (
+                      <tr key={branch.id}>
+                        <td>{(page - 1) * size + index + 1}</td>
+                        <td>{branch.name}</td>
+                        <td>{branch.address}</td>
+                        <td>{branch.status ? "Aktif" : "Nonaktif"}</td>
+                        <td className="flex gap-2">
+                          <NavLink
+                            to={`/cabang/${branch.id}`}
+                            className="btn btn-sm btn-info"
+                            title="View"
+                          >
+                            👁
+                          </NavLink>
+                          <NavLink
+                            to={`/cabang/edit-cabang/${branch.id}`}
+                            className="btn btn-sm btn-warning"
+                            title="Edit"
+                          >
+                            ✏️
+                          </NavLink>
+                          <button
+                            onClick={() => confirmToggleStatus(branch)}
+                            className={`btn btn-sm ${
+                              branch.status ? "btn-error" : "btn-success"
+                            }`}
+                            title={branch.status ? "Nonaktifkan" : "Aktifkan"}
+                          >
+                            {branch.status ? "🗑️" : "✅"}
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+
+                <div className="flex flex-wrap items-center justify-between mt-4 gap-4">
+                  <div className="flex items-center gap-2">
+                    <label className="font-medium">Tampilkan:</label>
+                    <select
+                      className="select select-bordered select-sm"
+                      value={size}
+                      onChange={(e) => {
+                        setSize(parseInt(e.target.value));
+                        setPage(1);
+                      }}
+                    >
+                      <option value={5}>5</option>
+                      <option value={10}>10</option>
+                      <option value={20}>20</option>
+                      <option value={50}>50</option>
+                    </select>
+                    <span className="text-sm">per halaman</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      className="btn btn-sm"
+                      onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                      disabled={page === 1}
+                    >
+                      Prev
+                    </button>
+                    <span className="text-sm">
+                      Page {page} of {totalPages}
+                    </span>
+                    <button
+                      className="btn btn-sm"
+                      onClick={() =>
+                        setPage((prev) => Math.min(prev + 1, totalPages))
+                      }
+                      disabled={page === totalPages}
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              </>
             ) : (
               <div className="text-center py-6 text-gray-500">
                 Tidak ada cabang yang ditemukan.

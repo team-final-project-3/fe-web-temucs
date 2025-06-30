@@ -36,6 +36,7 @@ const AntrianByCSChart = ({ view, onDataReady }) => {
   const fetchData = async () => {
     try {
       const response = await api.get("/queue");
+
       const filtered = filterByView(response.data.data);
       const csCountMap = {};
       const csNameMap = {};
@@ -49,10 +50,13 @@ const AntrianByCSChart = ({ view, onDataReady }) => {
         }
       });
 
-      const chartData = Object.entries(csCountMap).map(([csId, count]) => ({
-        name: csNameMap[csId] || `CS ${csId}`,
-        total: count,
-      }));
+      const chartData = Object.entries(csCountMap)
+        .map(([csId, count]) => ({
+          name: csNameMap[csId] || `CS ${csId}`,
+          total: count,
+        }))
+        .sort((a, b) => b.total - a.total)
+        .slice(0, 5);
 
       setData(chartData);
       if (onDataReady) onDataReady(chartData);

@@ -28,11 +28,14 @@ const AddLibur = () => {
     }
   }, []);
 
+  const normalizeName = (name) => name.trim().replace(/\s{2,}/g, " ");
+
   const handleAddHoliday = async (e) => {
     e.preventDefault();
     const newErrors = {};
+    const cleanedName = normalizeName(name);
 
-    if (!name.trim()) newErrors.name = "Nama hari libur harus diisi";
+    if (!cleanedName) newErrors.name = "Nama hari libur harus diisi";
     if (!date) newErrors.date = "Tanggal hari libur harus dipilih";
 
     if (Object.keys(newErrors).length > 0) {
@@ -43,12 +46,31 @@ const AddLibur = () => {
     setLoading(true);
 
     try {
+      const response = await api.get("/holiday");
+
+      const exists = response.data.holidays.find((item) => {
+        const itemDate = item.date?.split("T")[0];
+        return (
+          item.holidayName?.toLowerCase() === cleanedName.toLowerCase() &&
+          itemDate === date
+        );
+      });
+
+      if (exists) {
+        setErrors({
+          name: "Data hari libur sudah terdaftar",
+        });
+        setLoading(false);
+        return;
+      }
+
       await api.post("/holiday", {
-        holidayName: name.trim(),
+        holidayName: cleanedName,
         date,
         createdBy: "admin",
         updatedBy: "admin",
       });
+
       navigate("/libur");
     } catch (error) {
       console.error("Gagal menambahkan hari libur:", error);
@@ -74,9 +96,10 @@ const AddLibur = () => {
               placeholder="Nama Libur"
               value={name}
               onChange={(e) => {
-                setName(e.target.value);
+                setName(e.target.value.replace(/^\s+/, ""));
                 setErrors((prev) => ({ ...prev, name: "" }));
               }}
+              onBlur={(e) => setName(normalizeName(e.target.value))}
             />
             {errors.name && (
               <span className="text-sm text-red-500">{errors.name}</span>

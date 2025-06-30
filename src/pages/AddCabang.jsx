@@ -62,7 +62,6 @@ const AddCabang = () => {
       };
 
       const response = await api.post("/branch", dataCabang);
-      console.log(response.data);
 
       navigate("/cabang");
     } catch (error) {
@@ -77,7 +76,7 @@ const AddCabang = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen">
+      <div>
         <h2 className="text-2xl font-semibold my-3">ADD CABANG</h2>
 
         <div className="bg-base-100 rounded-lg shadow p-4 border-2 border-gray-300">

@@ -55,11 +55,14 @@ const EditLibur = () => {
     }
   }, [date]);
 
+  const normalizeName = (name) => name.trim().replace(/\s{2,}/g, " ");
+
   const handleUpdateHoliday = async (e) => {
     e.preventDefault();
     const newErrors = {};
+    const cleanedName = normalizeName(name);
 
-    if (!name.trim()) newErrors.name = "Nama libur wajib diisi";
+    if (!cleanedName) newErrors.name = "Nama libur wajib diisi";
     if (!date) newErrors.date = "Tanggal wajib dipilih";
 
     if (Object.keys(newErrors).length > 0) {
@@ -70,12 +73,32 @@ const EditLibur = () => {
     setLoading(true);
 
     try {
-      const response = await api.put(`/holiday/${id}`, {
-        holidayName: name.trim(),
+      const response = await api.get("/holiday");
+
+      const exists = response.data.holidays.find((item) => {
+        const itemDate = item.date?.split("T")[0];
+        return (
+          item.id !== parseInt(id) &&
+          item.holidayName?.trim().toLowerCase() ===
+            cleanedName.toLowerCase() &&
+          itemDate === date
+        );
+      });
+
+      if (exists) {
+        setErrors({
+          name: "Nama dan tanggal hari libur sudah terdaftar",
+        });
+        setLoading(false);
+        return;
+      }
+
+      await api.put(`/holiday/${id}`, {
+        holidayName: cleanedName,
         date,
         updatedBy: "admin",
       });
-      console.log("Berhasil update:", response.data);
+
       navigate("/libur");
     } catch (error) {
       console.error("Gagal update:", error);
@@ -89,7 +112,7 @@ const EditLibur = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen">
+      <div>
         <h2 className="text-2xl font-semibold my-3">Edit Libur</h2>
 
         <div className="bg-base-100 rounded-lg shadow p-4 border-2 border-gray-300">
@@ -104,6 +127,7 @@ const EditLibur = () => {
                 setName(e.target.value);
                 setErrors((prev) => ({ ...prev, name: "" }));
               }}
+              onBlur={(e) => setName(normalizeName(e.target.value))}
             />
             {errors.name && (
               <p className="text-red-500 text-sm">{errors.name}</p>

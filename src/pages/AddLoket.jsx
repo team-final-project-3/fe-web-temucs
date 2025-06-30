@@ -51,7 +51,6 @@ const AddLoket = () => {
 
       const response = await api.post("/loket/add", payload);
       navigate(`/cabang/${numericId}`);
-      console.log(response.data);
     } catch (error) {
       console.error("Gagal menambahkan loket:", error);
       const errorMessage =
@@ -64,7 +63,7 @@ const AddLoket = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen">
+      <div>
         <h2 className="text-2xl font-semibold my-3">ADD LOKET</h2>
 
         <div className="bg-base-100 rounded-lg shadow p-4 border-2 border-gray-300">

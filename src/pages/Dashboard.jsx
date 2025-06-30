@@ -22,7 +22,7 @@ const Dashboard = () => {
 
   const getCabang = async () => {
     const response = await api.get("/branch");
-    setCabang(response.data.branches);
+    setCabang(response.data);
   };
 
   const getAntrian = async () => {
@@ -62,7 +62,7 @@ const Dashboard = () => {
         <div className="flex w-full flex-col lg:flex-row text-white">
           <div className="card bg-[#FF7F08] rounded-box h-32 grow flex flex-row items-center justify-center gap-5">
             <Building2 size={80} />
-            <h1 className="text-3xl font-bold">{cabang.length}</h1>
+            <h1 className="text-3xl font-bold">{cabang.pagination.total}</h1>
             <div className="flex flex-col text-xl">
               <p>Jumlah</p>
               <p>Cabang</p>

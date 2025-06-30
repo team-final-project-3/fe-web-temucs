@@ -86,7 +86,7 @@ const EditCS = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen">
+      <div>
         <h2 className="text-2xl font-semibold my-3">EDIT CS</h2>
 
         <div className="bg-base-100 rounded-lg shadow p-4 border-2 border-gray-300">

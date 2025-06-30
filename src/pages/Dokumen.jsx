@@ -15,7 +15,6 @@ const Dokumen = () => {
     try {
       const response = await api.get("/document/user");
       setDocument(response.data);
-      console.log(response.data);
     } catch (error) {
       console.error("Error fetching documents:", error);
     } finally {
@@ -92,7 +91,7 @@ const Dokumen = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen">
+      <div>
         <h2 className="text-2xl font-semibold my-3">KELOLA DOKUMEN</h2>
 
         <div className="bg-base-100 rounded-lg shadow p-4 border-2 border-gray-300">

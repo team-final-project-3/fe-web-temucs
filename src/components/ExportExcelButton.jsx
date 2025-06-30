@@ -13,7 +13,6 @@ const ExportExcelButton = ({
   const exportToExcel = () => {
     const workbook = XLSX.utils.book_new();
 
-    // Sheet 1: Data Antrian
     if (antrianData.length) {
       const formatted = antrianData.map((item, index) => ({
         No: index + 1,
@@ -28,7 +27,6 @@ const ExportExcelButton = ({
       XLSX.utils.book_append_sheet(workbook, sheet, "Data Antrian");
     }
 
-    // Sheet 2: Status Antrian
     if (statusData.length) {
       const formatted = statusData.map((item, index) => ({
         No: index + 1,
@@ -39,7 +37,6 @@ const ExportExcelButton = ({
       XLSX.utils.book_append_sheet(workbook, sheet, "Status Antrian");
     }
 
-    // Sheet 3: Antrian per CS
     if (csData.length) {
       const formatted = csData.map((item, index) => ({
         No: index + 1,
@@ -50,7 +47,6 @@ const ExportExcelButton = ({
       XLSX.utils.book_append_sheet(workbook, sheet, "Antrian per CS");
     }
 
-    // Sheet 4: Top Antrian
     if (topAntrianData.length) {
       const formatted = topAntrianData.map((item, index) => ({
         No: index + 1,
@@ -61,7 +57,6 @@ const ExportExcelButton = ({
       XLSX.utils.book_append_sheet(workbook, sheet, "Top Antrian");
     }
 
-    // Sheet 5: Top Keluhan
     if (topKeluhanData.length) {
       const formatted = topKeluhanData.map((item, index) => ({
         No: index + 1,

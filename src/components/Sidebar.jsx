@@ -32,7 +32,6 @@ const Sidebar = ({ children }) => {
   };
 
   const data = jwtDecode(localStorage.getItem("token"));
-  console.log(data);
 
   return (
     <>

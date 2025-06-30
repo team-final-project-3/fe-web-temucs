@@ -19,7 +19,7 @@ import DayDate from "./DayDate";
 
 const Layout = ({ children }) => {
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className="flex min-h-screen overflow-hidden">
       <Sidebar>
         <SidebarItem
           icon={<House size={20} />}
@@ -53,14 +53,14 @@ const Layout = ({ children }) => {
         />
       </Sidebar>
 
-      <div className="flex flex-col flex-1">
+      <div className="flex flex-col flex-1 h-screen">
         <Navbar />
-        <div className="flex-1 overflow-y-auto">
-          <div className="flex justify-between items-center px-6">
+        <div className="flex-1 overflow-auto flex flex-col">
+          <div className="flex justify-between items-center px-6 pt-4">
             <Breadcrumbs />
             <DayDate />
           </div>
-          <main className="flex-1 overflow-auto mb-1 px-6">{children}</main>
+          <main className="flex-1 px-6">{children}</main>
           <Footer />
         </div>
       </div>
