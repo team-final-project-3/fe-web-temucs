@@ -1,5 +1,5 @@
 import React from "react";
-import { MonitorX } from "lucide-react"; // Icon tambahan, opsional
+import { MonitorX } from "lucide-react";
 
 const NotDesktop = () => {
   return (
