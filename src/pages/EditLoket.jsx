@@ -8,7 +8,6 @@ const EditLoket = () => {
   const navigate = useNavigate();
 
   const [name, setName] = useState("");
-  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
@@ -28,8 +27,8 @@ const EditLoket = () => {
         );
 
         if (loket) {
+          console.log(loket);
           setName(loket.name);
-          setUsername(loket.username);
         } else {
           console.warn("Data loket tidak ditemukan.");
         }
@@ -48,12 +47,6 @@ const EditLoket = () => {
 
     if (!name.trim()) newErrors.name = "Field Name harus diisi";
 
-    if (!username.trim()) {
-      newErrors.username = "Field Username harus diisi";
-    } else if (!hasNoSpaces(username)) {
-      newErrors.username = "Tidak boleh mengandung spasi";
-    }
-
     if (password && !hasNoSpaces(password)) {
       newErrors.password = "Tidak boleh mengandung spasi";
     }
@@ -68,7 +61,6 @@ const EditLoket = () => {
     try {
       const payload = {
         name: name.trimEnd().replace(/\s{2,}/g, " "),
-        username,
         updatedBy: "admin",
       };
 
@@ -109,26 +101,6 @@ const EditLoket = () => {
             />
             {errors.name && (
               <span className="text-sm text-red-500">{errors.name}</span>
-            )}
-
-            <label className="label mt-4">Username</label>
-            <input
-              type="text"
-              className={`input w-full ${
-                errors.username ? "border-red-500" : ""
-              }`}
-              placeholder="Username"
-              value={username}
-              onChange={(e) => {
-                setUsername(e.target.value);
-                setErrors((prev) => ({ ...prev, username: "" }));
-              }}
-              onKeyDown={(e) => {
-                if (e.key === " ") e.preventDefault();
-              }}
-            />
-            {errors.username && (
-              <span className="text-sm text-red-500">{errors.username}</span>
             )}
 
             <label className="label mt-4">Password (opsional)</label>
