@@ -27,7 +27,6 @@ const EditLoket = () => {
         );
 
         if (loket) {
-          console.log(loket);
           setName(loket.name);
         } else {
           console.warn("Data loket tidak ditemukan.");
