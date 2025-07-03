@@ -25,7 +25,6 @@ const Dashboard = () => {
     try {
       setLoading(true);
       const response = await api.get(`/queue/count/admin?range=${chartView}`);
-      console.log(response.data);
 
       setCabang(response.data.totalBranch || 0);
       setAntrianTotal(response.data.totalQueue || 0);
