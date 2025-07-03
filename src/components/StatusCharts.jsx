@@ -14,54 +14,25 @@ const STATUS_COLORS = {
 const StatusCharts = ({ view, onDataReady }) => {
   const [statusData, setStatusData] = useState([]);
 
-  const filterByView = (data) => {
-    const now = new Date();
-    return data.filter((item) => {
-      const date = new Date(item.createdAt);
-      if (view === "daily") return date.toDateString() === now.toDateString();
-      if (view === "weekly") {
-        const weekAgo = new Date(now);
-        weekAgo.setDate(now.getDate() - 7);
-        return date >= weekAgo;
-      }
-      if (view === "monthly") {
-        const monthAgo = new Date(now);
-        monthAgo.setMonth(now.getMonth() - 1);
-        return date >= monthAgo;
-      }
-      return true;
-    });
-  };
-
-  const getStatusCounts = async () => {
+  const fetchStatusCounts = async () => {
     try {
-      const response = await api.get("/queue");
-      const filtered = filterByView(response.data.data);
-      const statusCount = {
-        canceled: 0,
-        skipped: 0,
-        done: 0,
-        "in progress": 0,
-        waiting: 0,
-        called: 0,
-      };
-      filtered.forEach((item) => {
-        const status = item.status?.toLowerCase();
-        if (statusCount.hasOwnProperty(status)) statusCount[status]++;
-      });
-      const formatted = Object.entries(statusCount).map(([key, value]) => ({
+      const response = await api.get(`/queue/count/admin?range=${view}`);
+      const counts = response.data.statusCounts || {};
+
+      const formatted = Object.entries(counts).map(([key, value]) => ({
         name: key.charAt(0).toUpperCase() + key.slice(1),
         value,
       }));
+
       setStatusData(formatted);
       if (onDataReady) onDataReady(formatted);
     } catch (error) {
-      console.error("Gagal mengambil data status antrian:", error);
+      console.error("Gagal mengambil statusCounts:", error);
     }
   };
 
   useEffect(() => {
-    getStatusCounts();
+    fetchStatusCounts();
   }, [view]);
 
   const total = statusData.reduce((sum, entry) => sum + entry.value, 0);

@@ -3,60 +3,90 @@ import Layout from "../components/Layout";
 import api from "../utils/api";
 
 const Antrian = () => {
-  const [listAntrian, setListAntrian] = useState([]);
+  const [offlineList, setOfflineList] = useState([]);
+  const [onlineList, setOnlineList] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const [activeTab, setActiveTab] = useState("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
 
-  const [page, setPage] = useState(1);
-  const [size, setSize] = useState(10);
-  const [totalPages, setTotalPages] = useState(1);
+  const [pagination, setPagination] = useState({
+    all: { page: 1, size: 10 },
+    online: { page: 1, size: 10 },
+    offline: { page: 1, size: 10 },
+  });
 
-  const fetchAntrian = async () => {
+  const fetchAllAntrian = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/queue?page=${page}&size=${size}`);
-      const data = response.data?.data || [];
-      setListAntrian(data);
-      setTotalPages(response.data.pagination?.totalPages || 1);
-    } catch (error) {
-      console.error("Gagal fetch data antrian:", error);
+      const pageSize = 50;
+      let allData = [];
+      let currentPage = 1;
+      let totalPages = 1;
+
+      do {
+        const res = await api.get(
+          `/queue?page=${currentPage}&size=${pageSize}`
+        );
+        const data = res.data.data || [];
+        totalPages = res.data.pagination.totalPages;
+        allData = [...allData, ...data];
+        currentPage++;
+      } while (currentPage <= totalPages);
+
+      const offline = allData.filter((item) => item.loketId !== null);
+      const online = allData.filter((item) => item.loketId === null);
+
+      setOfflineList(offline);
+      setOnlineList(online);
+    } catch (err) {
+      console.error("Gagal fetch semua antrian:", err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchAntrian();
-  }, [page, size]);
+    fetchAllAntrian();
+  }, []);
 
-  const filteredAntrian = listAntrian
-    .filter((item) => {
-      if (activeTab === "online") return item.loketId === null;
-      if (activeTab === "offline") return item.loketId !== null;
-      return true;
-    })
-    .filter((item) =>
-      Object.values(item)
+  const getActiveList = () => {
+    if (activeTab === "offline") return offlineList;
+    if (activeTab === "online") return onlineList;
+
+    return [...offlineList, ...onlineList].sort((a, b) => {
+      const dateA = new Date(a.bookingDate || "1970-01-01");
+      const dateB = new Date(b.bookingDate || "1970-01-01");
+      return dateA - dateB;
+    });
+  };
+
+  const getFilteredList = () => {
+    return getActiveList().filter((item) =>
+      [item.name, item.user?.email, item.ticketNumber]
         .join(" ")
         .toLowerCase()
         .includes(searchTerm.toLowerCase())
     );
+  };
 
-  const sortedAntrian = [...filteredAntrian].sort((a, b) => {
-    if (!sortConfig.key) return 0;
-    const aValue = a[sortConfig.key];
-    const bValue = b[sortConfig.key];
+  const getSortedList = () => {
+    const filtered = getFilteredList();
+    if (!sortConfig.key) return filtered;
 
-    if (typeof aValue === "string" && typeof bValue === "string") {
-      return sortConfig.direction === "asc"
-        ? aValue.localeCompare(bValue)
-        : bValue.localeCompare(aValue);
-    }
+    return [...filtered].sort((a, b) => {
+      const aVal = a[sortConfig.key] ?? "";
+      const bVal = b[sortConfig.key] ?? "";
 
-    return sortConfig.direction === "asc" ? aValue - bValue : bValue - aValue;
-  });
+      if (typeof aVal === "string") {
+        return sortConfig.direction === "asc"
+          ? aVal.localeCompare(bVal)
+          : bVal.localeCompare(aVal);
+      }
+      return sortConfig.direction === "asc" ? aVal - bVal : bVal - aVal;
+    });
+  };
 
   const requestSort = (key) => {
     let direction = "asc";
@@ -69,6 +99,29 @@ const Antrian = () => {
   const renderSortIcon = (key) => {
     if (sortConfig.key !== key) return "↕";
     return sortConfig.direction === "asc" ? "↑" : "↓";
+  };
+
+  const currentPage = pagination[activeTab].page;
+  const currentSize = pagination[activeTab].size;
+  const sortedList = getSortedList();
+  const totalPages = Math.ceil(sortedList.length / currentSize);
+  const paginatedList = sortedList.slice(
+    (currentPage - 1) * currentSize,
+    currentPage * currentSize
+  );
+
+  const updatePage = (newPage) => {
+    setPagination((prev) => ({
+      ...prev,
+      [activeTab]: { ...prev[activeTab], page: newPage },
+    }));
+  };
+
+  const updateSize = (newSize) => {
+    setPagination((prev) => ({
+      ...prev,
+      [activeTab]: { page: 1, size: parseInt(newSize) },
+    }));
   };
 
   return (
@@ -159,10 +212,10 @@ const Antrian = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {sortedAntrian.length > 0 ? (
-                      sortedAntrian.map((item, index) => (
+                    {paginatedList.length > 0 ? (
+                      paginatedList.map((item, index) => (
                         <tr key={item.id}>
-                          <td>{(page - 1) * size + index + 1}</td>
+                          <td>{(currentPage - 1) * currentSize + index + 1}</td>
                           <td>{item.name || item.user?.fullname || "-"}</td>
                           <td>{item.user?.email || "-"}</td>
                           <td>{item.user?.phoneNumber || "-"}</td>
@@ -209,11 +262,8 @@ const Antrian = () => {
                     <label className="font-medium">Tampilkan:</label>
                     <select
                       className="select select-bordered select-sm"
-                      value={size}
-                      onChange={(e) => {
-                        setSize(parseInt(e.target.value));
-                        setPage(1);
-                      }}
+                      value={currentSize}
+                      onChange={(e) => updateSize(e.target.value)}
                     >
                       <option value={5}>5</option>
                       <option value={10}>10</option>
@@ -226,20 +276,20 @@ const Antrian = () => {
                   <div className="flex items-center gap-2">
                     <button
                       className="btn btn-sm"
-                      onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-                      disabled={page === 1}
+                      onClick={() => updatePage(Math.max(currentPage - 1, 1))}
+                      disabled={currentPage === 1}
                     >
                       Prev
                     </button>
                     <span className="text-sm">
-                      Page {page} of {totalPages}
+                      Page {currentPage} of {totalPages}
                     </span>
                     <button
                       className="btn btn-sm"
                       onClick={() =>
-                        setPage((prev) => Math.min(prev + 1, totalPages))
+                        updatePage(Math.min(currentPage + 1, totalPages))
                       }
-                      disabled={page === totalPages}
+                      disabled={currentPage === totalPages}
                     >
                       Next
                     </button>

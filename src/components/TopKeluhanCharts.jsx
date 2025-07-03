@@ -15,55 +15,27 @@ const TopKeluhanCharts = ({ view, onDataReady }) => {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const filterByView = (data) => {
-    const now = new Date();
-    return data.filter((item) => {
-      const date = new Date(item.createdAt);
-      if (view === "daily") return date.toDateString() === now.toDateString();
-      if (view === "weekly") {
-        const weekAgo = new Date(now);
-        weekAgo.setDate(now.getDate() - 7);
-        return date >= weekAgo;
-      }
-      if (view === "monthly") {
-        const monthAgo = new Date(now);
-        monthAgo.setMonth(now.getMonth() - 1);
-        return date >= monthAgo;
-      }
-      return true;
-    });
-  };
-
   useEffect(() => {
-    const fetchLayanan = async () => {
+    const fetchTopLayanan = async () => {
       try {
-        const response = await api.get("/queue");
-        const filtered = filterByView(response.data?.data || []);
-        const serviceCount = {};
+        setLoading(true);
+        const response = await api.get(`/queue/count/admin?range=${view}`);
+        const formatted = (response.data.top5Layanan || [])
+          .map((item) => ({
+            name: item.serviceName,
+            value: item.count,
+          }))
+          .sort((a, b) => b.value - a.value);
 
-        filtered.forEach((item) => {
-          if (item.services && item.services.length > 0) {
-            item.services.forEach((service) => {
-              const name = service.serviceName;
-              serviceCount[name] = (serviceCount[name] || 0) + 1;
-            });
-          }
-        });
-
-        const top5 = Object.entries(serviceCount)
-          .map(([name, value]) => ({ name, value }))
-          .sort((a, b) => b.value - a.value)
-          .slice(0, 5);
-
-        setChartData(top5);
-        if (onDataReady) onDataReady(top5);
+        setChartData(formatted);
+        if (onDataReady) onDataReady(formatted);
       } catch (error) {
-        console.error("Gagal fetch data layanan:", error);
+        console.error("Gagal fetch data top5Layanan:", error);
       } finally {
         setLoading(false);
       }
     };
-    fetchLayanan();
+    fetchTopLayanan();
   }, [view]);
 
   return (
@@ -77,8 +49,7 @@ const TopKeluhanCharts = ({ view, onDataReady }) => {
         </p>
       ) : chartData.length === 0 ? (
         <p className="text-gray-500 text-sm text-center mt-10">
-          Tidak ada data Layanan untuk ditampilkan. (Silakan tambah data
-          terlebih dahulu.)
+          Tidak ada data layanan untuk ditampilkan.
         </p>
       ) : (
         <ResponsiveContainer width="100%" height="80%">

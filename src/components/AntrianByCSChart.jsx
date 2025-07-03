@@ -14,46 +14,15 @@ import api from "../utils/api";
 const AntrianByCSChart = ({ view, onDataReady }) => {
   const [data, setData] = useState([]);
 
-  const filterByView = (data) => {
-    const now = new Date();
-    return data.filter((item) => {
-      const date = new Date(item.createdAt);
-      if (view === "daily") return date.toDateString() === now.toDateString();
-      if (view === "weekly") {
-        const weekAgo = new Date(now);
-        weekAgo.setDate(now.getDate() - 7);
-        return date >= weekAgo;
-      }
-      if (view === "monthly") {
-        const monthAgo = new Date(now);
-        monthAgo.setMonth(now.getMonth() - 1);
-        return date >= monthAgo;
-      }
-      return true;
-    });
-  };
-
   const fetchData = async () => {
     try {
-      const response = await api.get("/queue");
+      const response = await api.get(`/queue/count/admin?range=${view}`);
+      const csCounts = response.data.csCounts || [];
 
-      const filtered = filterByView(response.data.data);
-      const csCountMap = {};
-      const csNameMap = {};
-
-      filtered.forEach((item) => {
-        if (item.csId) {
-          const csId = item.csId;
-          const csName = item.cs?.name || `CS ${csId}`;
-          csCountMap[csId] = (csCountMap[csId] || 0) + 1;
-          csNameMap[csId] = csName;
-        }
-      });
-
-      const chartData = Object.entries(csCountMap)
-        .map(([csId, count]) => ({
-          name: csNameMap[csId] || `CS ${csId}`,
-          total: count,
+      const chartData = csCounts
+        .map((item) => ({
+          name: item.csName || `CS ${item.csId}`,
+          total: item.count || 0,
         }))
         .sort((a, b) => b.total - a.total)
         .slice(0, 5);
@@ -61,7 +30,7 @@ const AntrianByCSChart = ({ view, onDataReady }) => {
       setData(chartData);
       if (onDataReady) onDataReady(chartData);
     } catch (error) {
-      console.error("Gagal memuat data antrian per CS:", error);
+      console.error("Gagal memuat data csCounts:", error);
     }
   };
 

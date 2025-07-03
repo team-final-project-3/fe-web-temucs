@@ -250,8 +250,12 @@ const DetailCabang = () => {
               <h3 className="text-lg font-semibold mb-4 text-center">
                 Konfirmasi Hapus
               </h3>
-              <p className="text-center">
-                Yakin ingin menghapus CS <strong>{selectedCS.name}</strong>?
+              <p>
+                Apakah kamu yakin ingin{" "}
+                <strong>
+                  {selectedCS.status ? "menonaktifkan" : "mengaktifkan"}
+                </strong>{" "}
+                CS <strong>{selectedCS.name}</strong>?
               </p>
               <div className="flex justify-center gap-4 mt-6">
                 <button

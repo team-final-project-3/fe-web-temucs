@@ -11,61 +11,35 @@ import {
 } from "recharts";
 import api from "../utils/api";
 
-const TopAntrianCharts = ({ view, onDataReady }) => {
+const TopAntrianCharts = ({ view = "day", onDataReady }) => {
   const [chartData, setChartData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const filterByView = (data) => {
-    const now = new Date();
-    return data.filter((item) => {
-      const date = new Date(item.createdAt);
-      if (view === "daily") return date.toDateString() === now.toDateString();
-      if (view === "weekly") {
-        const weekAgo = new Date(now);
-        weekAgo.setDate(now.getDate() - 7);
-        return date >= weekAgo;
-      }
-      if (view === "monthly") {
-        const monthAgo = new Date(now);
-        monthAgo.setMonth(now.getMonth() - 1);
-        return date >= monthAgo;
-      }
-      return true;
-    });
-  };
-
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchChartData = async () => {
+      setLoading(true);
       try {
-        const [queueRes, branchRes] = await Promise.all([
-          api.get("/queue"),
-          api.get("/branch"),
-        ]);
-        const queueData = filterByView(queueRes.data.data);
-        const branchData = branchRes.data.data;
-
-        const queueCount = {};
-        queueData.forEach((item) => {
-          const branchId = item.branchId;
-          if (branchId) queueCount[branchId] = (queueCount[branchId] || 0) + 1;
+        const res = await api.get("/queue/count/admin", {
+          params: { range: view },
         });
 
-        const merged = branchData.map((branch) => ({
-          name: branch.name,
-          value: queueCount[branch.id] || 0,
-        }));
-
-        const top5 = merged.sort((a, b) => b.value - a.value).slice(0, 5);
+        const top5 = (res.data.top5Antrian || [])
+          .map((item) => ({
+            name: item.branchName,
+            value: item.count || 0,
+          }))
+          .sort((a, b) => b.value - a.value);
 
         setChartData(top5);
         if (onDataReady) onDataReady(top5);
       } catch (error) {
-        console.error("Error loading chart data:", error);
+        console.error("Error fetching top 5 antrian:", error);
       } finally {
         setLoading(false);
       }
     };
-    fetchData();
+
+    fetchChartData();
   }, [view]);
 
   return (
