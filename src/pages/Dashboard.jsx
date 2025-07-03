@@ -18,26 +18,50 @@ const Dashboard = () => {
   const [csData, setCsData] = useState([]);
   const [topAntrianData, setTopAntrianData] = useState([]);
   const [topKeluhanData, setTopKeluhanData] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [chartView, setChartView] = useState("day");
+  const [loading, setLoading] = useState(true);
+  const [fullAntrianData, setFullAntrianData] = useState([]);
 
-  const fetchData = async () => {
+  const fetchDashboardData = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/queue/count/admin?range=${chartView}`);
-
-      setCabang(response.data.totalBranch || 0);
-      setAntrianTotal(response.data.totalQueue || 0);
-      setAntrianData(response.data.groups || []);
-    } catch (error) {
-      console.error("Gagal mengambil data dashboard:", error);
+      const res = await api.get(`/queue/count/admin?range=${chartView}`);
+      setCabang(res.data.totalBranch || 0);
+      setAntrianTotal(res.data.totalQueue || 0);
+      setAntrianData(res.data.groups || []);
+    } catch (err) {
+      console.error("Gagal mengambil data dashboard:", err);
     } finally {
       setLoading(false);
     }
   };
 
+  const fetchFullAntrianData = async () => {
+    try {
+      const pageSize = 100;
+      let allData = [];
+      let currentPage = 1;
+      let totalPages = 1;
+
+      do {
+        const res = await api.get(
+          `/queue?page=${currentPage}&size=${pageSize}`
+        );
+        const data = res.data.data || [];
+        totalPages = res.data.pagination?.totalPages || 1;
+        allData = [...allData, ...data];
+        currentPage++;
+      } while (currentPage <= totalPages);
+
+      setFullAntrianData(allData);
+    } catch (err) {
+      console.error("Gagal mengambil semua data antrian:", err);
+    }
+  };
+
   useEffect(() => {
-    fetchData();
+    fetchDashboardData();
+    fetchFullAntrianData();
   }, [chartView]);
 
   if (loading) {
@@ -91,7 +115,7 @@ const Dashboard = () => {
               <option value="month">Tiap Bulan</option>
             </select>
             <ExportExcelButton
-              antrianData={antrianData}
+              antrianData={fullAntrianData}
               statusData={statusData}
               csData={csData}
               topAntrianData={topAntrianData}

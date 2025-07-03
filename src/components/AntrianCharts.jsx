@@ -43,7 +43,7 @@ const AntrianCharts = ({ data, view }) => {
   const getWeekNumber = (date) => {
     const d = new Date(date);
     d.setDate(d.getDate() + 4 - (d.getDay() || 7));
-    const yearStart = new Date(d.getFullYear(), 0, 1);
+    const yearStart = new Date(d.getFulear(), 0, 1);
     const weekNo = Math.ceil(((d - yearStart) / 86400000 + 1) / 7);
     return weekNo;
   };
@@ -52,12 +52,7 @@ const AntrianCharts = ({ data, view }) => {
     <div className="bg-white rounded-lg shadow-md p-4 border-2 border-gray-300 my-4">
       <h2 className="text-md font-semibold mb-2">
         Aktivitas Nasabah (
-        {view === "daily"
-          ? "Harian"
-          : view === "weekly"
-          ? "Mingguan"
-          : "Bulanan"}
-        )
+        {view === "day" ? "Harian" : view === "week" ? "Mingguan" : "Bulanan"})
       </h2>
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={chartData}>

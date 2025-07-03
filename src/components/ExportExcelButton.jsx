@@ -16,7 +16,7 @@ const ExportExcelButton = ({
     if (antrianData.length) {
       const formatted = antrianData.map((item, index) => ({
         No: index + 1,
-        Nama: item.name || "-",
+        Nama: item.name || item.user?.fullname || "-",
         Email: item.user?.email || "-",
         "No HP": item.user?.phoneNumber || "-",
         Cabang: item.branch?.name || "-",
