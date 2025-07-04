@@ -16,12 +16,10 @@ const ExportExcelButton = ({
     if (antrianData.length) {
       const formatted = antrianData.map((item, index) => ({
         No: index + 1,
-        Nama: item.name || item.user?.fullname || "-",
-        Email: item.user?.email || "-",
-        "No HP": item.user?.phoneNumber || "-",
-        Cabang: item.branch?.name || "-",
-        Status: item.loketId == null ? "Online" : "Offline",
-        Tanggal: new Date(item.bookingDate).toLocaleDateString("id-ID"),
+        Bulan: item.label,
+        "Antrian Online": item.totalQueueOnline || 0,
+        "Antrian Offline": item.totalQueueOffline || 0,
+        "Jumlah Antrian": item.totalQueueInRange || 0,
       }));
       const sheet = XLSX.utils.json_to_sheet(formatted);
       XLSX.utils.book_append_sheet(workbook, sheet, "Data Antrian");

@@ -13,56 +13,45 @@ import AntrianByCSChart from "../components/AntrianByCSChart";
 const Dashboard = () => {
   const [cabang, setCabang] = useState(0);
   const [antrianTotal, setAntrianTotal] = useState(0);
-  const [antrianData, setAntrianData] = useState([]);
+  const [antrianChartData, setAntrianChartData] = useState([]);
+  const [antrianExportData, setAntrianExportData] = useState([]);
   const [statusData, setStatusData] = useState([]);
   const [csData, setCsData] = useState([]);
   const [topAntrianData, setTopAntrianData] = useState([]);
   const [topKeluhanData, setTopKeluhanData] = useState([]);
   const [chartView, setChartView] = useState("day");
   const [loading, setLoading] = useState(true);
-  const [fullAntrianData, setFullAntrianData] = useState([]);
 
-  const fetchDashboardData = async () => {
+  const fetchChartData = async () => {
     try {
       setLoading(true);
       const res = await api.get(`/queue/count/admin?range=${chartView}`);
+      setAntrianChartData(res.data.groups || []);
       setCabang(res.data.totalBranch || 0);
       setAntrianTotal(res.data.totalQueue || 0);
-      setAntrianData(res.data.groups || []);
     } catch (err) {
-      console.error("Gagal mengambil data dashboard:", err);
+      console.error("Gagal ambil data chart:", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchFullAntrianData = async () => {
+  const fetchExportData = async () => {
     try {
-      const pageSize = 100;
-      let allData = [];
-      let currentPage = 1;
-      let totalPages = 1;
-
-      do {
-        const res = await api.get(
-          `/queue?page=${currentPage}&size=${pageSize}`
-        );
-        const data = res.data.data || [];
-        totalPages = res.data.pagination?.totalPages || 1;
-        allData = [...allData, ...data];
-        currentPage++;
-      } while (currentPage <= totalPages);
-
-      setFullAntrianData(allData);
+      const res = await api.get(`/queue/count/admin?range=month`);
+      setAntrianExportData(res.data.groups || []);
     } catch (err) {
-      console.error("Gagal mengambil semua data antrian:", err);
+      console.error("Gagal ambil data export:", err);
     }
   };
 
   useEffect(() => {
-    fetchDashboardData();
-    fetchFullAntrianData();
+    fetchChartData();
   }, [chartView]);
+
+  useEffect(() => {
+    fetchExportData();
+  }, []);
 
   if (loading) {
     return (
@@ -115,7 +104,7 @@ const Dashboard = () => {
               <option value="month">Tiap Bulan</option>
             </select>
             <ExportExcelButton
-              antrianData={fullAntrianData}
+              antrianData={antrianExportData}
               statusData={statusData}
               csData={csData}
               topAntrianData={topAntrianData}
@@ -125,7 +114,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <AntrianCharts data={antrianData} view={chartView} />
+        <AntrianCharts data={antrianChartData} view={chartView} />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
           <StatusCharts view={chartView} onDataReady={setStatusData} />
